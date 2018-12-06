@@ -29,6 +29,7 @@ public class OneToManyTest extends BaseJpaTest {
     public void insertsNewElementsToABag() {
         // given
         Post post = savedPost();
+        template.getStatistics().clear();
 
         // when
         template.executeInTx((em) -> {
@@ -37,28 +38,30 @@ public class OneToManyTest extends BaseJpaTest {
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(4);
     }
 
     @Test
     public void insertsNewElementsToAList() {
         // given
         Post post = savedPost();
+        template.getStatistics().clear();
 
         // when
         template.executeInTx((em) -> {
             Post fetchedPost = em.find(Post.class, post.id);
-            fetchedPost.comments.add(0, new Comment());
+            fetchedPost.comments.add( new Comment());
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(4);
     }
 
     @Test
     public void insertsNewElementsToASet() {
         // given
         Post post = savedPost();
+        template.getStatistics().clear();
 
         // when
         template.executeInTx((em) -> {
@@ -67,7 +70,7 @@ public class OneToManyTest extends BaseJpaTest {
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(4);
     }
 
     @Test
@@ -84,7 +87,7 @@ public class OneToManyTest extends BaseJpaTest {
 
         // then
         assertThat(template.getEntityManager().createQuery("SELECT count(t) FROM Tag t")
-            .getSingleResult()).isEqualTo(0);
+            .getSingleResult()).isEqualTo(0L);
     }
 
     private Post savedPost() {
