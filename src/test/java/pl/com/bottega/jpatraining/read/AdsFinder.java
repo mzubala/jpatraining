@@ -53,6 +53,40 @@ public class AdsFinder {
         Root root = cq.from(CarAd.class);
         Join model = root.join("model");
         Join brand = model.join("brand");
+        Predicate predicate = createPredicate(query, cb, root, model, brand);
+        cq.select(cb.construct(CarAdDto.class,
+            root.get("id"),
+            brand.get("name"),
+            model.get("name")
+        ));
+        cq.where(predicate);
+
+        CriteriaQuery countCq = cb.createQuery();
+        Root countRoot = countCq.from(CarAd.class);
+        Join countModel = countRoot.join("model");
+        Join countJoin  = countModel.join("brand");
+        Predicate countPredicate = createPredicate(query, cb, countRoot, countJoin, countModel);
+        countCq.where(countPredicate);
+        countCq.select(cb.count(countRoot));
+
+        Query emq = entityManager.createQuery(cq);
+        emq.setFirstResult((query.page - 1) * query.perPage);
+        emq.setMaxResults(query.perPage);
+        CarAdSearchResults results = new CarAdSearchResults();
+        results.ads = emq.getResultList();
+        results.pageNumber = query.page;
+        results.perPage = query.perPage;
+
+        Query countEmq = entityManager.createQuery(countCq);
+        Long count = (Long) countEmq.getSingleResult();
+        results.totalCount = count.intValue();
+        results.pagesCount = results.totalCount / results.perPage +
+            (results.totalCount % results.perPage > 0 ? 1 : 0);
+
+        return results;
+    }
+
+    private Predicate createPredicate(CarAdQuery query, CriteriaBuilder cb, Root root, Join model, Join brand) {
         Predicate predicate = cb.conjunction();
         if (query.fuel != null) {
             predicate = cb.and(predicate, cb.equal(root.get("fuel"), query.fuel));
@@ -63,18 +97,13 @@ public class AdsFinder {
         if (query.model != null) {
             predicate = cb.and(predicate, cb.equal(model.get("name"), query.model));
         }
-        predicate = cb.and(predicate, cb.equal(root.get("damaged"), query.damaged));
-        predicate = cb.and(predicate, cb.equal(root.get("firstOwner"), query.firstOwner));
-        cq.select(cb.construct(CarAdDto.class,
-            root.get("id"),
-            brand.get("name"),
-            model.get("name")
-        ));
-        cq.where(predicate);
-        Query emq = entityManager.createQuery(cq);
-        CarAdSearchResults results = new CarAdSearchResults();
-        results.ads = emq.getResultList();
-        return results;
+        if(query.damaged != null) {
+            predicate = cb.and(predicate, cb.equal(root.get("damaged"), query.damaged));
+        }
+        if(query.firstOwner != null) {
+            predicate = cb.and(predicate, cb.equal(root.get("firstOwner"), query.firstOwner));
+        }
+        return predicate;
     }
 
 }
