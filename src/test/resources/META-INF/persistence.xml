@@ -34,4 +34,40 @@
 
     </persistence-unit>
 
+    <persistence-unit name="jpatraining-l2">
+        <description>
+            Persistence unit for Hibernate User Guide
+        </description>
+
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <jar-file>file:./out/test/classes</jar-file>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <properties>
+            <property name="javax.persistence.jdbc.driver"
+                      value="org.h2.Driver"/>
+
+            <property name="javax.persistence.jdbc.url"
+                      value="jdbc:h2:tcp://localhost/~/jpatraining"/>
+
+            <property name="javax.persistence.jdbc.user"
+                      value="sa"/>
+
+            <property name="javax.persistence.jdbc.password"
+                      value=""/>
+
+            <property name="hibernate.show_sql"
+                      value="true"/>
+
+            <property name="hibernate.hbm2ddl.auto"
+                      value="create"/>
+
+            <property name="hibernate.cache.use_second_level_cache" value="true"/>
+            <property name="hibernate.cache.region.factory_class"
+                      value="org.hibernate.cache.ehcache.EhCacheRegionFactory"/>
+            <property name="hibernate.cache.use_query_cache"
+                      value="true"/>
+        </properties>
+
+    </persistence-unit>
+
 </persistence>

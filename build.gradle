@@ -16,4 +16,5 @@ dependencies {
     testCompile("org.assertj:assertj-core:3.11.1")
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.4.0.CR1'
     compile group: 'com.h2database', name: 'h2', version: '1.4.197'
+    compile group: 'org.hibernate', name: 'hibernate-ehcache', version: '5.4.0.CR1'
 }
