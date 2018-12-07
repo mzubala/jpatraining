@@ -52,4 +52,13 @@ public class CarAdDto {
 
         return Objects.hash(id, brand, model);
     }
+
+    @Override
+    public String toString() {
+        return "CarAdDto{" +
+            "id=" + id +
+            ", brand='" + brand + '\'' +
+            ", model='" + model + '\'' +
+            '}';
+    }
 }

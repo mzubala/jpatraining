@@ -3,6 +3,7 @@ package pl.com.bottega.jpatraining.read;
 import org.junit.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
@@ -46,6 +47,7 @@ public class AdsFinderTest extends BaseJpaTest {
     @Test
     public void searchesAdsByFirstOwnerFuelAndDamaged() {
         // given
+        testData();
         CarAdQuery query = new CarAdQuery();
         query.firstOwner = true;
         query.fuel = Fuel.PETROL;
@@ -61,6 +63,7 @@ public class AdsFinderTest extends BaseJpaTest {
     @Test
     public void searchesAdsByBrandAndFuel() {
         // given
+        testData();
         CarAdQuery query = new CarAdQuery();
         query.fuel = Fuel.PETROL;
         query.brand = "VW";
@@ -78,6 +81,7 @@ public class AdsFinderTest extends BaseJpaTest {
     @Test
     public void paginatesSearchResults() {
         // given
+        testData();
         CarAdQuery query = new CarAdQuery();
         query.page = 3;
         query.perPage = 2;
@@ -93,6 +97,30 @@ public class AdsFinderTest extends BaseJpaTest {
         assertThat(results.pageNumber).isEqualTo(3);
         assertThat(results.pagesCount).isEqualTo(6);
         assertThat(results.perPage).isEqualTo(2);
+    }
+
+
+    @Test
+    public void np1Test() {
+        // given
+        testData();
+        template.close();
+        //String goodQuery = "SELECT DISTINCT b FROM Brand b LEFT JOIN FETCH b.models";
+        String badQuery = "FROM Brand";
+        int n = (int) ((long) template.getEntityManager()
+            .createQuery("SELECT count(b) FROM Brand b").getSingleResult());
+            template.getStatistics().clear();
+
+        // when
+        List<Brand> brands = template.getEntityManager().createQuery(badQuery).getResultList();
+        for(Brand b : brands) {
+            for(Model m : b.models) {
+                System.out.println(b.name + " " + m.name);
+            }
+        }
+
+        // then
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(n + 1);
     }
 
     private void testData() {
@@ -132,7 +160,6 @@ public class AdsFinderTest extends BaseJpaTest {
             ads.forEach((ad) -> {
                 em.persist(ad);
             });
-            em.clear();
         });
     }
 
