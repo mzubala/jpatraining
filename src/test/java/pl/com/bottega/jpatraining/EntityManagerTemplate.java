@@ -19,10 +19,11 @@ public class EntityManagerTemplate {
     private static EntityManagerFactory emf;
 
     private ThreadLocal<EntityManager> entityManagerThreadLocal = new ThreadLocal<>();
+    private String unitName = "jpatraining";
 
     public EntityManager createEntityManager() {
         if (emf == null) {
-            emf = Persistence.createEntityManagerFactory("jpatraining");
+            emf = Persistence.createEntityManagerFactory(unitName);
         }
         getStatistics().setStatisticsEnabled(true);
         return emf.createEntityManager();
@@ -86,5 +87,7 @@ public class EntityManagerTemplate {
         });
     }
 
-
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
+    }
 }
