@@ -3,6 +3,8 @@ package pl.com.bottega.jpatraining.locking;
 import org.junit.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
+import javax.persistence.OptimisticLockException;
+import javax.persistence.RollbackException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -46,10 +48,14 @@ public class InventoryUpdaterTest extends BaseJpaTest {
         initialInventory();
         Runnable buyer = () -> {
             while (template.getEntityManager().find(Inventory.class, skuCode).getCount() > 0) {
-                template.executeInTx((em) -> {
-                    createInventoryUpdater().buy(skuCode, 4);
-                });
-                template.close();
+                try {
+                    template.executeInTx((em) -> {
+                        createInventoryUpdater().buy(skuCode, 4);
+                    });
+                    template.close();
+                } catch (RollbackException lockEx) {
+                    System.out.println("Ups... ktoś był szybszy od Ciebie. Hehehe");
+                }
             }
         };
         List<Thread> threads = new LinkedList<>();
@@ -83,7 +89,8 @@ public class InventoryUpdaterTest extends BaseJpaTest {
     }
 
     private InventoryUpdater createInventoryUpdater() {
-        return new PesimisticInventoryUpdater(template.getEntityManager());
+        //return new PesimisticInventoryUpdater(template.getEntityManager());
+        return new OptimisticInventoryUpdater(template.getEntityManager());
     }
 
     private Long txAmounts() {
