@@ -47,9 +47,31 @@ public class CacheTest extends BaseJpaTest {
 
 
         // then
-        template.getEntityManager().find(User.class, user.id);
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-        //assertThat(template.getStatistics().getSecondLevelCacheHitCount()).isEqualTo(??);
+        User userFetched = template.getEntityManager().find(User.class, user.id);
+        assertThat(userFetched.name).isEqualTo("Czesiek");
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(0);
+        assertThat(template.getStatistics().getSecondLevelCacheHitCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void readsEntitiesFromCollectionCache() {
+        // given
+        userWithPhotos();
+
+        // when
+        User userFetched = template.getEntityManager().find(User.class, user.id);
+        userFetched.photos.size();
+        template.close();
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2);
+        assertThat(template.getStatistics().getSecondLevelCacheMissCount()).isEqualTo(2);
+        assertThat(template.getStatistics().getSecondLevelCacheHitCount()).isEqualTo(0);
+        assertThat(template.getStatistics().getSecondLevelCachePutCount()).isEqualTo(6);
+
+        // then
+        userFetched = template.getEntityManager().find(User.class, user.id);
+        userFetched.photos.size();
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2);
+        assertThat(template.getStatistics().getSecondLevelCacheHitCount()).isEqualTo(6);
     }
 
     private User user;
