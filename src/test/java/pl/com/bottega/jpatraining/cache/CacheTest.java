@@ -48,8 +48,8 @@ public class CacheTest extends BaseJpaTest {
 
         // then
         template.getEntityManager().find(User.class, user.id);
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-        //assertThat(template.getStatistics().getSecondLevelCacheHitCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(0);
+        assertThat(template.getStatistics().getSecondLevelCacheHitCount()).isEqualTo(1);
     }
 
     private User user;
