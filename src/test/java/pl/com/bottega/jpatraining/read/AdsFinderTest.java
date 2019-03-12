@@ -132,7 +132,6 @@ public class AdsFinderTest extends BaseJpaTest {
             ads.forEach((ad) -> {
                 em.persist(ad);
             });
-            em.clear();
         });
     }
 
