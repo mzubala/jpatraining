@@ -1,5 +1,6 @@
 package pl.com.bottega.jpatraining.em;
 
+import javax.persistence.Access;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;

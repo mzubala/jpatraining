@@ -3,12 +3,16 @@ package pl.com.bottega.jpatraining.locking;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Version;
 
 @Entity
 public class Inventory {
 
     @Id
     private String skuCode;
+
+    @Version
+    private Long version;
 
     @Column(name = "inventory_count")
     private Integer count;

@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+@Entity
 public class UserCore implements User {
 
     @OneToMany(mappedBy = "userCore", cascade = CascadeType.ALL)

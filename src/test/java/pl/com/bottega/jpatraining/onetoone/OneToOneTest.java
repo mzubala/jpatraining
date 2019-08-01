@@ -34,6 +34,62 @@ public class OneToOneTest extends BaseJpaTest {
     }
 
     @Test
+    public void fetchesAddressEagerly() {
+        // given
+        Customer customer = new Customer();
+        Address address = new Address();
+        customer.setAddress(address);
+        address.setCustomer(customer);
+
+        // when
+        template.executeInTx((em) -> {
+            em.persist(address);
+            em.persist(customer);
+        });
+        template.close();
+        template.getStatistics().clear();
+
+        // then
+        template.executeInTx((em) -> {
+            em.find(Customer.class, customer.getId());
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+        });
+
+        template.getStatistics().clear();
+        template.close();
+        template.executeInTx((em) -> {
+            em.createQuery("FROM Customer").getResultList();
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+        });
+    }
+
+    @Test
+    public void np1InOneToOne() {
+        // given
+        int n = 50;
+        for(int i = 0; i<n; i++) {
+            Customer customer = new Customer();
+            Address address = new Address();
+            customer.setAddress(address);
+            address.setCustomer(customer);
+
+            // when
+            template.executeInTx((em) -> {
+                em.persist(address);
+                em.persist(customer);
+            });
+        }
+        template.close();
+        template.getStatistics().clear();
+
+        // then
+        template.executeInTx((em) -> {
+            em.createQuery("FROM Customer c").getResultList();
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2*n+1);
+        });
+    }
+
+    @Test
     public void savesAddressAndCustomerCascading() {
         // given
         Customer customer = new Customer();
@@ -125,7 +181,7 @@ public class OneToOneTest extends BaseJpaTest {
             template.getStatistics().clear();
             Address addressFetched = em.find(Address.class, address.getId());
         });
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
     }
 
 }

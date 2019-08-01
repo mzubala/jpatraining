@@ -63,6 +63,7 @@ public class UserFactoryTest extends BaseJpaTest {
             u.addRole(new InvoiceCorrectorRole());
             u.addRole(new OrderCorrectorRole());
         });
+        template.close();
 
         template.executeInTx((em) -> {
             User u = (User) em.createQuery("FROM UserCore").getResultList().get(0);

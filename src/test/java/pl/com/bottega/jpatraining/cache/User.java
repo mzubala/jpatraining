@@ -1,12 +1,11 @@
 package pl.com.bottega.jpatraining.cache;
 
+import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
@@ -14,16 +13,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     Long id;
 
     String name;
 
     @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_id")
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     Set<Photo> photos = new HashSet<>();
 
     public User() {

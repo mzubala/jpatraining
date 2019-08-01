@@ -19,8 +19,9 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithIdentity);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithIdentity.getId())???
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+            assertThat(auctionWithIdentity.getId()).isNotNull();
+            assertThat(auctionWithIdentity.getId()).isEqualTo(1L);
         });
     }
 
@@ -32,8 +33,8 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithTable);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithTable.getId())??
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(0L);
+            assertThat(auctionWithTable.getId()).isNotNull();
         });
     }
 
@@ -45,9 +46,26 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithSequence);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithSequence.getId())??
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+            assertThat(auctionWithSequence.getId()).isNotNull();
         });
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
+    }
+
+    @Test
+    public void generatesIdWithSequenceGeneratorForMultipleEntities() {
+        template.getStatistics().clear();
+        for(int i = 0; i<50; i++) {
+            AuctionWithSequence auctionWithSequence = new AuctionWithSequence();
+            assertThat(auctionWithSequence.getId()).isNull();
+
+            template.executeInTx((em) -> {
+                em.persist(auctionWithSequence);
+                assertThat(auctionWithSequence.getId()).isNotNull();
+            });
+            assertThat(auctionWithSequence.getId()).isEqualTo(i + 1);
+        }
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
     }
 
     @Test
