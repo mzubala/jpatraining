@@ -1,16 +1,27 @@
 package pl.com.bottega.jpatraining.onetoone;
 
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+
+@Entity
 public class Address {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(mappedBy = "address", fetch = FetchType.LAZY, optional = false)
     private Customer customer;
 
     public String getStreet() {
         return street;
     }
 
-    private String street = "test";
+    String street = "test";
 
     public Long getId() {
         return id;
@@ -30,5 +41,9 @@ public class Address {
 
     public void setStreet(String street) {
         this.street = street;
+    }
+
+    public void printStreet() {
+        System.out.println(street);
     }
 }

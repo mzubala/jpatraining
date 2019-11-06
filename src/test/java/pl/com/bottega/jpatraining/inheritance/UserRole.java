@@ -1,14 +1,26 @@
 package pl.com.bottega.jpatraining.inheritance;
 
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import java.time.Clock;
 
+import static javax.persistence.GenerationType.IDENTITY;
+import static javax.persistence.InheritanceType.JOINED;
+
+@Entity
+@Inheritance(strategy = JOINED)
 public abstract class UserRole implements User {
 
+    @ManyToOne
     private UserCore userCore;
 
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
     public UserRole(UserCore userCore) {

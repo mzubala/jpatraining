@@ -33,11 +33,11 @@ public class OneToManyTest extends BaseJpaTest {
         // when
         template.executeInTx((em) -> {
             Post fetchedPost = em.find(Post.class, post.id);
-            fetchedPost.likes.add(new Like());
+            fetchedPost.getLikes().add(new Like());
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
     }
 
     @Test
@@ -48,11 +48,11 @@ public class OneToManyTest extends BaseJpaTest {
         // when
         template.executeInTx((em) -> {
             Post fetchedPost = em.find(Post.class, post.id);
-            fetchedPost.comments.add(0, new Comment());
+            fetchedPost.comments.add(new Comment());
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(4L);
     }
 
     @Test
@@ -67,7 +67,7 @@ public class OneToManyTest extends BaseJpaTest {
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(3L);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class OneToManyTest extends BaseJpaTest {
 
         // then
         assertThat(template.getEntityManager().createQuery("SELECT count(t) FROM Tag t")
-            .getSingleResult()).isEqualTo(0);
+            .getSingleResult()).isEqualTo(0L);
     }
 
     private Post savedPost() {
@@ -93,17 +93,18 @@ public class OneToManyTest extends BaseJpaTest {
             em.persist(post);
         });
         template.close();
+        template.getStatistics().clear();
         return post;
     }
 
     private Post newPost() {
         Post post = new Post();
-        post.comments.add(new Comment());
-        post.comments.add(new Comment());
-        post.likes.add(new Like());
-        post.likes.add(new Like());
-        post.tags.add(new Tag());
-        post.tags.add(new Tag());
+        post.comments.add(new Comment(post));
+        post.comments.add(new Comment(post));
+        post.likes.add(new Like(post));
+        post.likes.add(new Like(post));
+        post.tags.add(new Tag(post));
+        post.tags.add(new Tag(post));
         return post;
     }
 
