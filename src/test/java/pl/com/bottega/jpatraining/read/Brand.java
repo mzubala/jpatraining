@@ -4,12 +4,19 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@NamedQuery(
+    name = Brand.FIND_BY_NAME,
+    query = "FROM Brand b WHERE b.name = :brandName"
+)
 public class Brand {
+
+    public static final String FIND_BY_NAME = "findByName";
 
     @Id
     @GeneratedValue

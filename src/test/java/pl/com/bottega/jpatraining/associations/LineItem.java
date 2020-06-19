@@ -2,14 +2,20 @@ package pl.com.bottega.jpatraining.associations;
 
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
+import javax.persistence.MapsId;
 import java.io.Serializable;
 import java.util.Objects;
 
 public class LineItem {
 
     private LineItemPK lineItemPK = new LineItemPK();
+
+    @MapsId("productId")
     private Product product;
+
+    @MapsId("orderId")
     private Order order;
+
     private Integer count;
 
     public LineItem(Order order, Product product, int count) {

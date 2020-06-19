@@ -1,8 +1,21 @@
 package pl.com.bottega.jpatraining.associations;
 
+import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 import java.util.LinkedList;
 import java.util.List;
 
+@NamedQueries(
+    {
+        @NamedQuery(
+            name = "getAll",
+            query = "FROM Order"
+        )
+    }
+)
+@Table( name = "orders_table")
 public class Order {
 
     private Long id;

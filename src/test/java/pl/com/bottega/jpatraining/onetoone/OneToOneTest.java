@@ -72,7 +72,8 @@ public class OneToOneTest extends BaseJpaTest {
 
         // when
         template.executeInTx((em) -> {
-            em.remove(em.getReference(Customer.class, customer.getId()));
+            Customer customerToRemove = em.getReference(Customer.class, customer.getId());
+            em.remove(customerToRemove);
         });
         template.close();
 
@@ -102,7 +103,8 @@ public class OneToOneTest extends BaseJpaTest {
             assertThat(customerFetched.getAddress()).isInstanceOf(Address.class);
             assertThat(customerFetched.getAddress()).isNotExactlyInstanceOf(Address.class);
             System.out.println(customerFetched.getAddress().getClass());
-            assertThat(customerFetched.getAddress().getStreet()).isNotNull();
+            customerFetched.getAddress().printStreet();
+            //assertThat().isNotNull();
             assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
         });
     }
@@ -124,8 +126,10 @@ public class OneToOneTest extends BaseJpaTest {
         template.executeInTx((em) -> {
             template.getStatistics().clear();
             Address addressFetched = em.find(Address.class, address.getId());
+            System.out.println(addressFetched.getCustomer().getClass());
         });
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
     }
 
 }
