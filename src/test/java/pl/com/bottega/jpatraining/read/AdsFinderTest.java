@@ -46,6 +46,7 @@ public class AdsFinderTest extends BaseJpaTest {
     @Test
     public void searchesAdsByFirstOwnerFuelAndDamaged() {
         // given
+        testData();
         CarAdQuery query = new CarAdQuery();
         query.firstOwner = true;
         query.fuel = Fuel.PETROL;
@@ -61,6 +62,7 @@ public class AdsFinderTest extends BaseJpaTest {
     @Test
     public void searchesAdsByBrandAndFuel() {
         // given
+        testData();
         CarAdQuery query = new CarAdQuery();
         query.fuel = Fuel.PETROL;
         query.brand = "VW";
@@ -78,6 +80,7 @@ public class AdsFinderTest extends BaseJpaTest {
     @Test
     public void paginatesSearchResults() {
         // given
+        testData();
         CarAdQuery query = new CarAdQuery();
         query.page = 3;
         query.perPage = 2;

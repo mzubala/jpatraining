@@ -7,8 +7,8 @@ public class CarAdQuery {
     String brand, model;
     Integer productionYearFrom, productionYearTo;
     Integer firstRegistrationYearFrom, firstRegistrationYearTo;
-    boolean damaged;
-    boolean firstOwner;
+    Boolean damaged;
+    Boolean firstOwner;
     Fuel fuel;
     BigDecimal priceFrom, priceTo;
 

@@ -12,7 +12,7 @@ import java.util.Set;
 @Entity
 @NamedQuery(
     name = Brand.FIND_BY_NAME,
-    query = "FROM Brand b WHERE b.name = :brandName"
+    query = "SELECT b FROM Brand b WHERE b.name = :brandName"
 )
 public class Brand {
 
