@@ -1,5 +1,6 @@
 package pl.com.bottega.jpatraining.read;
 
+import org.junit.Before;
 import org.junit.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
@@ -13,11 +14,28 @@ public class AdsFinderTest extends BaseJpaTest {
 
     private AdsFinder sut = new AdsFinder(template.getEntityManager());
 
-    @Test
-    public void countsAdsByBrand() {
+    @Before
+    public void setup() {
         // given
         testData();
+    }
 
+    @Test
+    public void findsBrands() {
+        assertThat(sut.brand("BMW").name).isEqualTo("BMW");
+        assertThat(sut.brand("Volvo").name).isEqualTo("Volvo");
+        assertThat(sut.brand("XXXX")).isNull();
+    }
+
+    @Test
+    public void findsModels() {
+        assertThat(sut.model("BMW", "X3").name).isEqualTo("X3");
+        assertThat(sut.model("Volvo", "XC60").name).isEqualTo("XC60");
+        assertThat(sut.model("X", "YZ")).isNull();
+    }
+
+    @Test
+    public void countsAdsByBrand() {
         // when
         int bmwCount = sut.countByBrand(sut.brand("BMW"));
         int vwCount = sut.countByBrand(sut.brand("VW"));
@@ -31,9 +49,6 @@ public class AdsFinderTest extends BaseJpaTest {
 
     @Test
     public void findsByModelAndPrice() {
-        // given
-        testData();
-
         // when
         List<CarAd> res1 = sut.findByModelAndPrice(sut.model("BMW", "X3"), new BigDecimal(100000), new BigDecimal(200000));
         List<CarAd> res2 = sut.findByModelAndPrice(sut.model("VW", "Polo"), new BigDecimal(16000), new BigDecimal(17000));
@@ -123,7 +138,6 @@ public class AdsFinderTest extends BaseJpaTest {
             new CarAd(10, volvo.model("S60"), 2016, 20016, false, false, Fuel.PETROL, new BigDecimal(110000)),
             new CarAd(11, volvo.model("XC60"), 20018, 2018, false, true, Fuel.DIESEL, new BigDecimal(220000))
         );
-
 
         template.executeInTx((em) -> {
             em.persist(bmw);

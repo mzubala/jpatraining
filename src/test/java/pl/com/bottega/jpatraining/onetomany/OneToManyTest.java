@@ -92,6 +92,7 @@ public class OneToManyTest extends BaseJpaTest {
         template.executeInTx((em) -> {
             em.persist(post);
         });
+        template.getStatistics().clear();
         template.close();
         return post;
     }

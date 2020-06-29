@@ -1,5 +1,6 @@
 package pl.com.bottega.jpatraining.read;
 
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -27,6 +28,9 @@ public class CarAd {
     Fuel fuel;
 
     BigDecimal price;
+
+    @Embedded
+    Engine engine;
 
     public CarAd(int id, Model model, int productionYear, Integer firstRegistrationYear, boolean damaged, boolean firstOwner, Fuel fuel, BigDecimal price) {
         this.id = (long) id;
