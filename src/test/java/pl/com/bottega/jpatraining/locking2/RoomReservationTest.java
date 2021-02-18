@@ -1,5 +1,6 @@
 package pl.com.bottega.jpatraining.locking2;
 
+import org.junit.Before;
 import org.junit.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
@@ -25,6 +26,14 @@ public class RoomReservationTest extends BaseJpaTest {
     LocalDate fifthDay = LocalDate.ofYearDay(2022, 5);
 
     RoomReservationService sut = new RoomReservationService(this.template);
+
+    @Before
+    public void setup() {
+        template.executeInTx((em) -> {
+            em.persist(new Room(room1));
+            em.persist(new Room(room2));
+        });
+    }
 
     @Test
     public void makesSingleReservation() {
