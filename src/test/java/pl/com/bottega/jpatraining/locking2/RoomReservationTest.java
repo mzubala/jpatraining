@@ -89,9 +89,9 @@ public class RoomReservationTest extends BaseJpaTest {
                 LocalDate until = from.plusDays(i * reservationLength);
                 try {
                     sut.makeReservation(new MakeReservationCommand(room1, userId, from, until));
-                    System.out.println(String.format("thread=%s made reservation from=%s until=%s", Thread.currentThread().getName(), from, until));
+                    System.out.printf("thread=%s made reservation from=%s until=%s%n", Thread.currentThread().getName(), from, until);
                 } catch (RoomNotAvailableException roomNotAvailableException) {
-                    System.out.println(String.format("thread=%s failed to reserve from=%s until=%s", Thread.currentThread().getName(), from, until));
+                    System.out.printf("thread=%s failed to reserve from=%s until=%s%n", Thread.currentThread().getName(), from, until);
                 }
             });
             return null;
@@ -105,7 +105,7 @@ public class RoomReservationTest extends BaseJpaTest {
 
         int usersCount = 5;
         Collection<Callable<Void>> work = IntStream.rangeClosed(1, usersCount)
-                .mapToObj(i -> userReservationMaker(Long.valueOf(i), reservationsCount, reservationLength))
+                .mapToObj(i -> userReservationMaker((long) i, reservationsCount, reservationLength))
                 .collect(Collectors.toList());
         ExecutorService executorService = Executors.newFixedThreadPool(usersCount);
         executorService.invokeAll(work);
