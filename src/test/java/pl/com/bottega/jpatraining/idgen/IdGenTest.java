@@ -4,6 +4,7 @@ import org.junit.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
 import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,9 +20,10 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithIdentity);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithIdentity.getId())???
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+            assertThat(auctionWithIdentity.getId()).isNotNull();
         });
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
     }
 
     @Test
@@ -45,9 +47,24 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithSequence);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithSequence.getId())??
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+            assertThat(auctionWithSequence.getId()).isNotNull();
         });
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
+    }
+
+    @Test
+    public void generatesMultipleIdsWithSequenceGenerator() {
+        int n = 500;
+        template.getStatistics().clear();
+        for (int i = 0; i < 500; i++) {
+            AuctionWithSequence auctionWithSequence = new AuctionWithSequence();
+            template.executeInTx((em) -> {
+                em.persist(auctionWithSequence);
+                assertThat(auctionWithSequence.getId()).isNotNull();
+            });
+        }
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(n + n/30 + 2);
     }
 
     @Test

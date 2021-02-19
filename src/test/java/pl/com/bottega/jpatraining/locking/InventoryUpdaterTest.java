@@ -3,8 +3,10 @@ package pl.com.bottega.jpatraining.locking;
 import org.junit.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
+import javax.persistence.RollbackException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,11 +46,16 @@ public class InventoryUpdaterTest extends BaseJpaTest {
     public void buysInventoryInConcurrentEnvironment() {
         // given
         initialInventory();
+        AtomicInteger exCounter = new AtomicInteger(0);
         Runnable buyer = () -> {
             while (template.getEntityManager().find(Inventory.class, skuCode).getCount() > 0) {
-                template.executeInTx((em) -> {
-                    createInventoryUpdater().buy(skuCode, 4);
-                });
+                try {
+                    template.executeInTx((em) -> {
+                        createInventoryUpdater().buy(skuCode, 4);
+                    });
+                } catch (RollbackException ex) {
+                    exCounter.incrementAndGet();
+                }
                 template.close();
             }
         };
@@ -70,6 +77,7 @@ public class InventoryUpdaterTest extends BaseJpaTest {
 
         // then
         assertThat(txAmounts()).isEqualTo(-1000);
+        System.out.println(exCounter.get());
     }
 
     private final String skuCode = "test";
@@ -83,7 +91,9 @@ public class InventoryUpdaterTest extends BaseJpaTest {
     }
 
     private InventoryUpdater createInventoryUpdater() {
-        return new PesimisticInventoryUpdater(template.getEntityManager());
+
+        //return new PesimisticInventoryUpdater(template.getEntityManager());
+        return new OptimisticInventoryUpdater(template.getEntityManager());
     }
 
     private Long txAmounts() {
