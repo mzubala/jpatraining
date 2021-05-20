@@ -3,6 +3,8 @@ package pl.com.bottega.jpatraining.onetoone;
 import org.junit.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OneToOneTest extends BaseJpaTest {
@@ -78,6 +80,7 @@ public class OneToOneTest extends BaseJpaTest {
 
         // then
         template.executeInTx((em) -> {
+            assertThat(em.find(Customer.class, customer.getId())).isNull();
             assertThat(em.find(Address.class, address.getId())).isNull();
         });
     }
@@ -105,6 +108,31 @@ public class OneToOneTest extends BaseJpaTest {
             assertThat(customerFetched.getAddress().getStreet()).isNotNull();
             assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
         });
+    }
+
+    @Test
+    public void np1SelectWithOneToOne() {
+        int n = 100;
+        for(int i = 0; i<n; i++) {
+            // given
+            Customer customer = new Customer();
+            Address address = new Address();
+            customer.setAddress(address);
+            address.setCustomer(customer);
+            template.executeInTx((em) -> {
+                em.persist(customer);
+            });
+            template.close();
+        }
+        template.getStatistics().clear();
+
+        List<Customer> customers = template.getEntityManager().createQuery("SELECT c FROM Customer c", Customer.class).getResultList(); // 1
+        template.close();
+        for(Customer customer : customers) {
+            System.out.println(customer.getAddress().getStreet()); // 1
+        } // x n
+
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(n + 1);
     }
 
     @Test

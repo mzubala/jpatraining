@@ -195,6 +195,27 @@ public class EntityManagerTest extends BaseJpaTest {
         assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
     }
 
+    @Test
+    public void getsLazyEntity() {
+        //given
+        template.executeInTx(em -> {
+            Auction auction = newAuction();
+            em.persist(auction);
+        });
+        template.close();
+        template.getStatistics().clear();
+
+        // when
+        Auction lazyAuction = template.getEntityManager().getReference(Auction.class, 1L);
+        assertThat(lazyAuction).isNotExactlyInstanceOf(Auction.class);
+        assertThat(lazyAuction.getClass().getName()).containsIgnoringCase("proxy");
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(0L);
+        assertThat(template.getEntityManager().contains(lazyAuction)).isTrue();
+
+        lazyAuction.getName();
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+    }
+
     private Auction newAuction() {
         Auction auction = new Auction();
         auction.setId(1L);
