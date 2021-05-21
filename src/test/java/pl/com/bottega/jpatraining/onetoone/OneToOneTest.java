@@ -1,5 +1,6 @@
 package pl.com.bottega.jpatraining.onetoone;
 
+import org.hibernate.jpa.QueryHints;
 import org.junit.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 

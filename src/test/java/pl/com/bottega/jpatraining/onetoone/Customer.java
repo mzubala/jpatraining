@@ -1,5 +1,6 @@
 package pl.com.bottega.jpatraining.onetoone;
 
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
