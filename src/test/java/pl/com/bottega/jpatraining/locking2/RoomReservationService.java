@@ -13,7 +13,10 @@ class RoomReservationService {
     }
 
     public void makeReservation(MakeReservationCommand command) throws RoomNotAvailableException {
+        // find + lock
+        entityManagerTemplate.executeInTx((em) -> {
 
+        });
     }
 
     public boolean isReserved(ReservationQuery reservationQuery) {
