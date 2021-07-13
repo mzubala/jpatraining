@@ -17,7 +17,7 @@ public class Brand {
 
     String name;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "brand")
     Set<Model> models = new HashSet<>();
 
     public Brand(String name) {
