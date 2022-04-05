@@ -46,10 +46,14 @@ public class InventoryUpdaterTest extends BaseJpaTest {
         initialInventory();
         Runnable buyer = () -> {
             while (template.getEntityManager().find(Inventory.class, skuCode).getCount() > 0) {
-                template.executeInTx((em) -> {
-                    createInventoryUpdater().buy(skuCode, 4);
-                });
-                template.close();
+                try {
+                    template.executeInTx((em) -> {
+                        createInventoryUpdater().buy(skuCode, 4);
+                    });
+                    template.close();
+                } catch (RuntimeException runtimeException) {
+                    System.out.println("Ups!!!!!");
+                }
             }
         };
         List<Thread> threads = new LinkedList<>();

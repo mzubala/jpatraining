@@ -11,7 +11,9 @@ public class AddProductToOrder {
     }
 
     public void add(Long orderId, Long productId, Integer count) {
-        // TODO - add product to order using just 1 DB query, hint: use EntityManager.getReference method
+        Order order = em.getReference(Order.class, orderId);
+        Product product = em.getReference(Product.class, productId);
+        em.persist(new LineItem(order, product, count));
     }
 
 }

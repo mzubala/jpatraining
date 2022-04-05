@@ -3,6 +3,8 @@ package pl.com.bottega.jpatraining.onetoone;
 import org.junit.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OneToOneTest extends BaseJpaTest {
@@ -123,9 +125,33 @@ public class OneToOneTest extends BaseJpaTest {
         // when
         template.executeInTx((em) -> {
             template.getStatistics().clear();
-            Address addressFetched = em.find(Address.class, address.getId());
+            Customer customerFetched = em.find(Customer.class, customer.getId());
+            assertThat(customerFetched.getAddress()).isNotExactlyInstanceOf(Address.class);
         });
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
     }
+
+    @Test
+    public void np1SelectProblem() {
+        // given
+        int n = 100;
+        for(int i = 0; i<n; i++) {
+            Customer customer = new Customer();
+            Address address = new Address();
+            customer.setAddress(address);
+            address.setCustomer(customer);
+            template.executeInTx((em) -> {
+                em.persist(customer);
+            });
+        }
+        template.close();
+        template.getStatistics().clear();
+
+        // when
+        List<Address> addressList = template.getEntityManager().createQuery("SELECT a FROM Address a").getResultList();
+
+        // then
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(n+1);
+    }
+
 
 }
