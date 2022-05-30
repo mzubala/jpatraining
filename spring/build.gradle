@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'org.springframework.boot' version '2.7.0'
+    id 'io.freefair.lombok' version '6.4.3'
 }
 
 apply plugin: 'java'
@@ -19,6 +20,7 @@ dependencies {
     runtimeClasspath 'com.h2database:h2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 test {
