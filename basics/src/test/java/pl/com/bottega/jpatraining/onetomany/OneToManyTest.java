@@ -6,6 +6,8 @@ import org.hibernate.collection.internal.PersistentSet;
 import org.junit.jupiter.api.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OneToManyTest extends BaseJpaTest {
@@ -33,11 +35,11 @@ public class OneToManyTest extends BaseJpaTest {
         // when
         template.executeInTx((em) -> {
             Post fetchedPost = em.find(Post.class, post.id);
-            fetchedPost.likes.add(new Like());
+            fetchedPost.likes.add(new Like(post));
         });
 
         // then
-        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(4L);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
     }
 
     @Test
@@ -48,11 +50,11 @@ public class OneToManyTest extends BaseJpaTest {
         // when
         template.executeInTx((em) -> {
             Post fetchedPost = em.find(Post.class, post.id);
-            fetchedPost.comments.add(0, new Comment());
+            fetchedPost.comments.add(new Comment(post));
         });
 
         // then
-        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(8);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(6L);
     }
 
     @Test
@@ -63,11 +65,11 @@ public class OneToManyTest extends BaseJpaTest {
         // when
         template.executeInTx((em) -> {
             Post fetchedPost = em.find(Post.class, post.id);
-            fetchedPost.tags.add(new Tag());
+            fetchedPost.tags.add(new Tag(post));
         });
 
         // then
-        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(4);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(3L);
     }
 
     @Test
@@ -84,7 +86,24 @@ public class OneToManyTest extends BaseJpaTest {
 
         // then
         assertThat(template.getEntityManager().createQuery("SELECT count(t) FROM Tag t")
-            .getSingleResult()).isEqualTo(0);
+            .getSingleResult()).isEqualTo(0L);
+    }
+
+    @Test
+    public void cantEagerLoadTwoBags() {
+        // given
+        Author author1 = new Author();
+        Author author2 = new Author();
+        Image image = new Image();
+        Book book = new Book();
+        book.authors.addAll(List.of(author1, author2));
+        book.images.add(image);
+        template.executeInTx(em -> {
+            em.persist(author1);
+            em.persist(author2);
+            em.persist(image);
+            em.persist(book);
+        });
     }
 
     private Post savedPost() {
@@ -99,12 +118,12 @@ public class OneToManyTest extends BaseJpaTest {
 
     private Post newPost() {
         Post post = new Post();
-        post.comments.add(new Comment());
-        post.comments.add(new Comment());
-        post.likes.add(new Like());
-        post.likes.add(new Like());
-        post.tags.add(new Tag());
-        post.tags.add(new Tag());
+        post.comments.add(new Comment(post));
+        post.comments.add(new Comment(post));
+        post.likes.add(new Like(post));
+        post.likes.add(new Like(post));
+        post.tags.add(new Tag(post));
+        post.tags.add(new Tag(post));
         return post;
     }
 

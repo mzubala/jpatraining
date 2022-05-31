@@ -20,17 +20,14 @@ public class Post {
     @GeneratedValue
     Long id;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "post_id")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
     Collection<Like> likes = new LinkedList<>(); // PersistentBag
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "post_id")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
     @OrderColumn(name = "index")
     List<Comment> comments = new LinkedList<>(); // PersistentList
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "post_id")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
     Set<Tag> tags = new HashSet<>(); // PersistentSet
 
 }
