@@ -37,7 +37,7 @@ public class OneToManyTest extends BaseJpaTest {
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(4L);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class OneToManyTest extends BaseJpaTest {
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(8);
     }
 
     @Test
@@ -67,7 +67,7 @@ public class OneToManyTest extends BaseJpaTest {
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(4);
     }
 
     @Test
