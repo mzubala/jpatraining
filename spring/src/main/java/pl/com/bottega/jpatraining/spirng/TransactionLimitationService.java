@@ -21,7 +21,7 @@ public class TransactionLimitationService {
 
     private void saveInTx() {
         transactionTemplate.executeWithoutResult((callback) -> {
-            entityManager.persist(new Product("Sample"));
+            entityManager.persist(new Product("Sample", new Category("Test")));
         });
     }
 }

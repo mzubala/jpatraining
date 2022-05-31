@@ -1,9 +1,11 @@
 package pl.com.bottega.jpatraining.onetoone;
 
+import org.hibernate.LazyInitializationException;
 import org.junit.jupiter.api.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class OneToOneTest extends BaseJpaTest {
 
@@ -124,8 +126,31 @@ public class OneToOneTest extends BaseJpaTest {
         template.executeInTx((em) -> {
             template.getStatistics().clear();
             Address addressFetched = em.find(Address.class, address.getId());
+            System.out.println(addressFetched.getCustomer().getClass());
         });
         //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+    }
+
+    @Test
+    public void causesLazyLoadingException() {
+        // given
+        Customer customer = new Customer();
+        Address address = new Address();
+        customer.setAddress(address);
+        address.setCustomer(customer);
+        template.executeInTx((em) -> {
+            em.persist(customer);
+        });
+        template.close();
+
+        // when
+        Customer customerFetched = template.getEntityManager().find(Customer.class, 1L);
+        template.close();
+
+        // then
+        assertThatThrownBy(() -> {
+            customerFetched.getAddress().getStreet();
+        }).isInstanceOf(LazyInitializationException.class);
     }
 
 }

@@ -14,7 +14,7 @@ public class ProductService {
 
     @Transactional
     public void createProduct() {
-        entityManager.persist(new Product("Sample"));
+        entityManager.persist(new Product("Sample", new Category("Sample")));
     }
 
     @Transactional(readOnly = true)
