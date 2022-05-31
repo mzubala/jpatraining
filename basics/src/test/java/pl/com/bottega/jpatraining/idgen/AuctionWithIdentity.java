@@ -14,6 +14,8 @@ public class AuctionWithIdentity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String title = "xyz";
+
     public Long getId() {
         return id;
     }
