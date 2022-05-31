@@ -106,6 +106,23 @@ public class OneToManyTest extends BaseJpaTest {
         });
     }
 
+    @Test
+    public void usesGetReferenceToAddTags() {
+        // given
+        Post post = savedPost();
+
+        // when
+        template.executeInTx((em) -> {
+           Tag tag = new Tag(em.getReference(Post.class, post.id));
+           em.persist(tag);
+        });
+        template.close();
+
+        // then
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+        assertThat(template.getEntityManager().find(Post.class, post.id).tags).hasSize(3);
+    }
+
     private Post savedPost() {
         Post post = newPost();
         template.executeInTx((em) -> {

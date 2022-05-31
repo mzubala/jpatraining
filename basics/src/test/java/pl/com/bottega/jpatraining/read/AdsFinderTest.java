@@ -37,9 +37,9 @@ public class AdsFinderTest extends BaseJpaTest {
     @Test
     public void countsAdsByBrand() {
         // when
-        int bmwCount = sut.countByBrand(sut.brand("BMW"));
-        int vwCount = sut.countByBrand(sut.brand("VW"));
-        int volvoCount = sut.countByBrand(sut.brand("Volvo"));
+        int bmwCount = sut.countAdsByBrand(sut.brand("BMW"));
+        int vwCount = sut.countAdsByBrand(sut.brand("VW"));
+        int volvoCount = sut.countAdsByBrand(sut.brand("Volvo"));
 
         // then
         assertThat(bmwCount).isEqualTo(5);

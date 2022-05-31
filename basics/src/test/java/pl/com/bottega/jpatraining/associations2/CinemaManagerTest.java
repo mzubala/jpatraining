@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.List;
 
@@ -77,7 +79,7 @@ public class CinemaManagerTest extends BaseJpaTest {
         template.getStatistics().clear();
 
         // when
-        Instant when = Instant.now();
+        Instant when = Instant.now().truncatedTo(ChronoUnit.SECONDS);
         template.executeInTx(em -> {
             CinemaManager cm = new CinemaManager(em);
             cm.createShow(movies.get(0).getId(), 1L, when);
