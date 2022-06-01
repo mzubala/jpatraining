@@ -3,6 +3,7 @@ package pl.com.bottega.jpatraining.onetomany;
 import org.hibernate.collection.internal.PersistentBag;
 import org.hibernate.collection.internal.PersistentList;
 import org.hibernate.collection.internal.PersistentSet;
+import org.hibernate.jpa.QueryHints;
 import org.junit.jupiter.api.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
@@ -121,6 +122,45 @@ public class OneToManyTest extends BaseJpaTest {
         // then
         assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
         assertThat(template.getEntityManager().find(Post.class, post.id).tags).hasSize(3);
+    }
+
+    @Test
+    public void np1SelectProblem() {
+        // given
+        int n = 100;
+        for(int i = 0; i<n; i++) {
+            savedPost();
+        }
+
+        // when
+        List<Post> allPosts = template.getEntityManager().createQuery("SELECT p FROM Post p").getResultList();
+        for (Post p : allPosts) {
+            System.out.println(p.comments.size());
+        }
+
+        // then
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(n + 1);
+    }
+
+    @Test
+    public void np1SelectProblemSolved() {
+        // given
+        int n = 100;
+        for(int i = 0; i<n; i++) {
+            savedPost();
+        }
+
+        // when
+        List<Post> allPosts = template.getEntityManager().createQuery("SELECT DISTINCT p FROM Post p JOIN FETCH p.comments")
+            .setHint(QueryHints.HINT_PASS_DISTINCT_THROUGH, false)
+            .getResultList();
+        for (Post p : allPosts) {
+            System.out.println(p.comments.size());
+        }
+
+        // then
+        assertThat(allPosts.size()).isEqualTo(n);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
     }
 
     private Post savedPost() {

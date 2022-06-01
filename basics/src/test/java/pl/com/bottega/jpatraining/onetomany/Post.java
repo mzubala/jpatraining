@@ -1,5 +1,7 @@
 package pl.com.bottega.jpatraining.onetomany;
 
+import org.hibernate.annotations.BatchSize;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
