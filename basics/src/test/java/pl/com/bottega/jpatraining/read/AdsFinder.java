@@ -21,19 +21,19 @@ public class AdsFinder {
     }
 
     public Brand brand(String name) {
-        /*return entityManager.createQuery("Select b FROM Brand b WHERE b.name = :name", Brand.class)
+        return entityManager.createNamedQuery("Brand.byName", Brand.class)
             .setParameter("name", name)
             .getResultStream()
-            .findFirst().orElse(null);*/
+            .findFirst().orElse(null);
 
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        /*CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Brand> cq = cb.createQuery(Brand.class);
         Root<Brand> brand = cq.from(Brand.class);
         cq.select(brand);
         cq.where(cb.equal(brand.get("name"), name));
         return entityManager.createQuery(cq)
             .getResultStream()
-            .findFirst().orElse(null);
+            .findFirst().orElse(null);*/
     }
 
     public Model model(String brandName, String modelName) {
@@ -87,24 +87,37 @@ public class AdsFinder {
         CriteriaQuery cq = cb.createQuery();
         Root<CarAd> carAd = cq.from(CarAd.class);
         Join<CarAd, Model> model = carAd.join("model");
-        Join<Model, Brand> brand = carAd.join("brand");
+        Join<Model, Brand> brand = model.join("brand");
         Predicate predicate = cb.conjunction();
-        if(query.brand != null) {
+        if (query.fuel != null) {
+            predicate = cb.and(predicate, cb.equal(carAd.get("fuel"), query.fuel));
+        }
+        if (query.brand != null) {
             predicate = cb.and(predicate, cb.equal(brand.get("name"), query.brand));
         }
-        if(query.fuel != null) {
-            //TODO
+        if (query.model != null) {
+            predicate = cb.and(predicate, cb.equal(model.get("name"), query.model));
         }
-        // TODO - ify dla pozostałych
+        if(query.damaged != null) {
+            predicate = cb.and(predicate, cb.equal(carAd.get("damaged"), query.damaged));
+        }
+        if(query.firstOwner != null) {
+            predicate = cb.and(predicate, cb.equal(carAd.get("firstOwner"), query.firstOwner));
+        }
         cq.where(predicate);
 
         cq.select(cb.count(carAd));
-        // TODO - execute query and get count
+        int totalCount = ((Long)entityManager.createQuery(cq).getSingleResult()).intValue();
 
+        CarAdSearchResults results = new CarAdSearchResults();
         cq.select(cb.construct(CarAdDto.class, carAd.get("id"), brand.get("name"), model.get("name")));
-        // TODO - execute and get dtos (remember about offset and limit)
+        results.ads = entityManager.createQuery(cq).setMaxResults(query.perPage).setFirstResult((query.page - 1) * query.perPage).getResultList();
+        results.totalCount = totalCount;
+        results.pageNumber = query.page;
+        results.perPage = query.perPage;
+        results.pagesCount = results.totalCount / results.perPage + (results.totalCount % results.perPage > 0 ? 1 : 0);
 
-        return null; // TODO create and return CarAdSearchResults
+        return results;
     }
 
 }
