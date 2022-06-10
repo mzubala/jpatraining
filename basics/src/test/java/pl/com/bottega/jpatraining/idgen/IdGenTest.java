@@ -51,6 +51,20 @@ public class IdGenTest extends BaseJpaTest {
     }
 
     @Test
+    public void mergesAuctionWithGeneratedId() {
+        // when
+        AuctionWithIdentity mergedAuction = template.executeInTx(em -> {
+            AuctionWithIdentity auction = new AuctionWithIdentity();
+            auction.setId(40L);
+            return em.merge(auction);
+        });
+
+        // then
+        // assertThat(mergedAuction.getId()).isEqualTo(??);
+        // assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+    }
+
+    @Test
     public void orderInCaseOfTransactionRollbackWithTable() {
         // given
         template.executeInTx((em) -> {
