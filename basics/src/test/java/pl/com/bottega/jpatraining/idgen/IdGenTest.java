@@ -19,8 +19,8 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithIdentity);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithIdentity.getId())???
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+            assertThat(auctionWithIdentity.getId()).isNotNull();
         });
     }
 
@@ -45,13 +45,35 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithSequence);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithSequence.getId())??
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+            assertThat(auctionWithSequence.getId()).isNotNull();
         });
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
+    }
+
+    @Test
+    public void generatesIdWithSequenceGeneratorWithAllocationSize() {
+        // given
+        template.getStatistics().clear();
+        int n = 1000;
+
+        // when
+        for(int i = 0; i<n; i++) {
+            AuctionWithSequence auctionWithSequence = new AuctionWithSequence();
+            template.executeInTx((em) -> {
+                em.persist(auctionWithSequence);
+            });
+        }
+
+        // then
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(n + n/50 + 1);
     }
 
     @Test
     public void mergesAuctionWithGeneratedId() {
+        // given
+        template.getStatistics().clear();
+
         // when
         AuctionWithIdentity mergedAuction = template.executeInTx(em -> {
             AuctionWithIdentity auction = new AuctionWithIdentity();
@@ -60,8 +82,8 @@ public class IdGenTest extends BaseJpaTest {
         });
 
         // then
-        // assertThat(mergedAuction.getId()).isEqualTo(??);
-        // assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(mergedAuction.getId()).isEqualTo(1L);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
     }
 
     @Test

@@ -5,8 +5,10 @@ import java.util.Objects;
 
 public class Money {
 
-    private final Integer cents;
-    private final String currency;
+    private Integer cents;
+    private String currency;
+
+    Money() {}
 
     private Money(Integer cents, String currency) {
         this.cents = cents;
