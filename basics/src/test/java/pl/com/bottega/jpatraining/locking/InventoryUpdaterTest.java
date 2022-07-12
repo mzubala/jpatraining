@@ -80,7 +80,8 @@ public class InventoryUpdaterTest extends BaseJpaTest {
     }
 
     private InventoryUpdater createInventoryUpdater() {
-        return new PesimisticInventoryUpdater(template.getEntityManager());
+        //return new PesimisticInventoryUpdater(template.getEntityManager());
+        return new OptimisticInventoryUpdater(template.getEntityManager());
     }
 
     private Long txAmounts() {
