@@ -1,5 +1,6 @@
 package pl.com.bottega.jpatraining.onetomany;
 
+import org.hibernate.LazyInitializationException;
 import org.hibernate.collection.internal.PersistentBag;
 import org.hibernate.collection.internal.PersistentList;
 import org.hibernate.collection.internal.PersistentSet;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class OneToManyTest extends BaseJpaTest {
 
@@ -33,11 +35,11 @@ public class OneToManyTest extends BaseJpaTest {
         // when
         template.executeInTx((em) -> {
             Post fetchedPost = em.find(Post.class, post.id);
-            fetchedPost.likes.add(new Like());
+            fetchedPost.likes.add(new Like(fetchedPost));
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
     }
 
     @Test
@@ -48,11 +50,11 @@ public class OneToManyTest extends BaseJpaTest {
         // when
         template.executeInTx((em) -> {
             Post fetchedPost = em.find(Post.class, post.id);
-            fetchedPost.comments.add(0, new Comment());
+            fetchedPost.comments.add(0, new Comment(fetchedPost));
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(6L);
     }
 
     @Test
@@ -63,11 +65,11 @@ public class OneToManyTest extends BaseJpaTest {
         // when
         template.executeInTx((em) -> {
             Post fetchedPost = em.find(Post.class, post.id);
-            fetchedPost.tags.add(new Tag());
+            fetchedPost.tags.add(new Tag(fetchedPost));
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(3L);
     }
 
     @Test
@@ -84,7 +86,20 @@ public class OneToManyTest extends BaseJpaTest {
 
         // then
         assertThat(template.getEntityManager().createQuery("SELECT count(t) FROM Tag t")
-            .getSingleResult()).isEqualTo(0);
+            .getSingleResult()).isEqualTo(0L);
+    }
+
+    @Test
+    public void failsToLazyLoadAfterEntityMangerIsClosed() {
+        // given
+        Post post = savedPost();
+
+        // when
+        Post fetchedPost = template.getEntityManager().find(Post.class, post.id);
+        template.close();
+
+        // then
+        assertThatThrownBy(() -> fetchedPost.comments.get(0)).isInstanceOf(LazyInitializationException.class);
     }
 
     private Post savedPost() {
@@ -99,12 +114,12 @@ public class OneToManyTest extends BaseJpaTest {
 
     private Post newPost() {
         Post post = new Post();
-        post.comments.add(new Comment());
-        post.comments.add(new Comment());
-        post.likes.add(new Like());
-        post.likes.add(new Like());
-        post.tags.add(new Tag());
-        post.tags.add(new Tag());
+        post.comments.add(new Comment(post));
+        post.comments.add(new Comment(post));
+        post.likes.add(new Like(post));
+        post.likes.add(new Like(post));
+        post.tags.add(new Tag(post));
+        post.tags.add(new Tag(post));
         return post;
     }
 
