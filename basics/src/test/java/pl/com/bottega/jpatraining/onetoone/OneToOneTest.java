@@ -3,7 +3,10 @@ package pl.com.bottega.jpatraining.onetoone;
 import org.junit.jupiter.api.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
+import javax.persistence.PersistenceException;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class OneToOneTest extends BaseJpaTest {
 
@@ -31,6 +34,30 @@ public class OneToOneTest extends BaseJpaTest {
             assertThat(customerFetched.getAddress() == addressFetched).isTrue();
             assertThat(addressFetched.getCustomer() == customerFetched).isTrue();
         });
+    }
+
+    @Test
+    public void np1SelectWithEagerLoading() {
+        // given
+        int n = 100;
+        for (int i = 0; i < n; i++) {
+            template.executeInTx((em) -> {
+                Customer customer = new Customer();
+                Address address = new Address();
+                customer.setAddress(address);
+                address.setCustomer(customer);
+                em.persist(address);
+                em.persist(customer);
+            });
+        }
+        template.close();
+        template.getStatistics().clear();
+
+        // when
+        template.getEntityManager().createQuery("SELECT c FROM Customer c").getResultList();
+
+        // then
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2*n + 1);
     }
 
     @Test
@@ -128,4 +155,14 @@ public class OneToOneTest extends BaseJpaTest {
         //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
     }
 
+    @Test
+    public void savedCustomerWithoutAddress() {
+        // given
+        Customer customer = new Customer();
+
+        // expect
+        template.executeInTx((em) -> {
+            assertThatThrownBy(() -> em.persist(customer)).isInstanceOf(PersistenceException.class);
+        });
+    }
 }
