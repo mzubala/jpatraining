@@ -30,6 +30,8 @@
 
             <property name="hibernate.hbm2ddl.auto"
                       value="create"/>
+            
+            <property name="hibernate.globally_quoted_identifiers" value="true"/>
         </properties>
 
     </persistence-unit>
@@ -61,6 +63,7 @@
 
             <property name="hibernate.hbm2ddl.auto"
                       value="create"/>
+            <property name="hibernate.globally_quoted_identifiers" value="true"/>
 
             <property name="hibernate.cache.use_second_level_cache" value="true"/>
             <property name="hibernate.cache.region.factory_class"

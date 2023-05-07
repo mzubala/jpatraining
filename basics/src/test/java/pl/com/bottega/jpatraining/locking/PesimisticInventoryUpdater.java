@@ -1,6 +1,6 @@
 package pl.com.bottega.jpatraining.locking;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 public class PesimisticInventoryUpdater implements InventoryUpdater {
 

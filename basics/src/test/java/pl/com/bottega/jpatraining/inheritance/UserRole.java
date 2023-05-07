@@ -1,8 +1,8 @@
 package pl.com.bottega.jpatraining.inheritance;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import java.time.Clock;
 
 public abstract class UserRole implements User {

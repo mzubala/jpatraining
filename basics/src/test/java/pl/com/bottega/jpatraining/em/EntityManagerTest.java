@@ -4,7 +4,7 @@ import org.h2.jdbc.JdbcSQLException;
 import org.junit.jupiter.api.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
-import javax.persistence.EntityExistsException;
+import jakarta.persistence.EntityExistsException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

@@ -3,7 +3,7 @@ package pl.com.bottega.jpatraining.idgen;
 import org.junit.jupiter.api.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;

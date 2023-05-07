@@ -1,7 +1,7 @@
 package pl.com.bottega.jpatraining.associations2;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
 public class Cinema {
 

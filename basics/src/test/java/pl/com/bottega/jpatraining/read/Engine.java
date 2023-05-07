@@ -1,6 +1,6 @@
 package pl.com.bottega.jpatraining.read;
 
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 
 @Embeddable
 class Engine {

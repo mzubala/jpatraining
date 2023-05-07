@@ -1,7 +1,7 @@
 package pl.com.bottega.jpatraining.associations;
 
-import javax.persistence.Embeddable;
-import javax.persistence.Entity;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Entity;
 import java.io.Serializable;
 import java.util.Objects;
 

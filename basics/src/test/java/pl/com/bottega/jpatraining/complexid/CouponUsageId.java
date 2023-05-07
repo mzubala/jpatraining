@@ -1,6 +1,6 @@
 package pl.com.bottega.jpatraining.complexid;
 
-import javax.persistence.Embeddable;
+import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 
 @Embeddable

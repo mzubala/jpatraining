@@ -1,7 +1,7 @@
 package pl.com.bottega.jpatraining.onetomany;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;

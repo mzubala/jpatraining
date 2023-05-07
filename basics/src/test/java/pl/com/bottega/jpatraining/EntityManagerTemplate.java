@@ -1,16 +1,16 @@
 package pl.com.bottega.jpatraining;
 
-import org.hibernate.Metamodel;
+import jakarta.persistence.metamodel.Metamodel;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
-import javax.persistence.Table;
-import javax.persistence.metamodel.EntityType;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.Table;
+import jakarta.persistence.metamodel.EntityType;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -68,7 +68,7 @@ public class EntityManagerTemplate {
             session.createNativeQuery("SET REFERENTIAL_INTEGRITY FALSE").executeUpdate();
             hibernateMetadata.getEntities().stream()
                 .map(this::getTableName)
-                .forEach(tableName -> session.createNativeQuery("TRUNCATE TABLE " + tableName)
+                .forEach(tableName -> session.createNativeQuery("TRUNCATE TABLE \"" + tableName + "\"")
                     .executeUpdate()
                 );
             session.createNativeQuery("SET REFERENTIAL_INTEGRITY TRUE").executeUpdate();

@@ -1,6 +1,6 @@
 package pl.com.bottega.jpatraining.read;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.util.List;
 

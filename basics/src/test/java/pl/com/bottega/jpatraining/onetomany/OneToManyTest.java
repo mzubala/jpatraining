@@ -1,8 +1,8 @@
 package pl.com.bottega.jpatraining.onetomany;
 
-import org.hibernate.collection.internal.PersistentBag;
-import org.hibernate.collection.internal.PersistentList;
-import org.hibernate.collection.internal.PersistentSet;
+import org.hibernate.collection.spi.PersistentBag;
+import org.hibernate.collection.spi.PersistentList;
+import org.hibernate.collection.spi.PersistentSet;
 import org.junit.jupiter.api.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
