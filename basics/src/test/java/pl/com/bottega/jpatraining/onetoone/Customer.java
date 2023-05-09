@@ -1,9 +1,29 @@
 package pl.com.bottega.jpatraining.onetoone;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+
+@Entity
 public class Customer {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(
+        cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
+        fetch = FetchType.LAZY,
+        orphanRemoval = true,
+        mappedBy = "customer",
+        optional = false
+    )
+    @PrimaryKeyJoinColumn
     private Address address;
 
     public Address getAddress() {

@@ -8,6 +8,7 @@ import java.util.Objects;
 public class LineItem {
 
     private LineItemPK lineItemPK = new LineItemPK();
+
     private Product product;
     private Order order;
     private Integer count;

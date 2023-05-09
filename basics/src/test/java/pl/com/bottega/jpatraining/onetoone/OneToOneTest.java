@@ -83,6 +83,32 @@ public class OneToOneTest extends BaseJpaTest {
     }
 
     @Test
+    public void deletesCustomersAddress() {
+        // given
+        Customer customer = new Customer();
+        Address address = new Address();
+        customer.setAddress(address);
+        address.setCustomer(customer);
+        template.executeInTx((em) -> {
+            em.persist(customer);
+        });
+        template.close();
+
+        // when
+        template.executeInTx((em) -> {
+            var c = em.find(Customer.class, customer.getId());
+            c.setAddress(null);
+        });
+        template.close();
+
+        // then
+        template.executeInTx((em) -> {
+            assertThat(em.find(Customer.class, customer.getId()).getAddress()).isNull();
+            assertThat(em.find(Address.class, address.getId())).isNull();
+        });
+    }
+
+    @Test
     public void lazyLoadsAddress() {
         // given
         Customer customer = new Customer();
@@ -105,6 +131,43 @@ public class OneToOneTest extends BaseJpaTest {
             assertThat(customerFetched.getAddress().getStreet()).isNotNull();
             assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
         });
+    }
+
+    @Test
+    public void np1SelectProblem() {
+        // given
+        int n = 100;
+        for(int i = 0; i<n; i++) {
+            Customer customer = new Customer();
+            Address address = new Address();
+            customer.setAddress(address);
+            address.setCustomer(customer);
+            template.executeInTx((em) -> {
+                em.persist(customer);
+            });
+            template.close();
+        }
+        template.getStatistics().clear();
+
+        // when
+        var customers = template.getEntityManager().createQuery("SELECT c FROM Customer c", Customer.class).getResultList(); // 1
+        for(var c : customers) {
+            System.out.println(c.getAddress().getStreet()); // 1
+        } // x n
+
+        // then
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(n + 1);
+
+        // when
+        template.close();
+        template.getStatistics().clear();
+        customers = template.getEntityManager().createQuery("SELECT c FROM Customer c JOIN FETCH c.address", Customer.class).getResultList(); // 1
+        for(var c : customers) {
+            System.out.println(c.getAddress().getStreet()); // 1
+        } // x n
+
+        // then
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
     }
 
     @Test
