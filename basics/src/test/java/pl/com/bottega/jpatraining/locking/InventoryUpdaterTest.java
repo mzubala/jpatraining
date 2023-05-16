@@ -50,9 +50,13 @@ public class InventoryUpdaterTest extends BaseJpaTest {
         initialInventory();
         Runnable buyer = () -> {
             while (template.getEntityManager().find(Inventory.class, skuCode).getCount() > 0) {
-                template.executeInTx((em) -> {
-                    createInventoryUpdater().buy(skuCode, 4);
-                });
+                try {
+                    template.executeInTx((em) -> {
+                        createInventoryUpdater().buy(skuCode, 4);
+                    });
+                } catch (RuntimeException ex) {
+                    ex.printStackTrace();
+                }
                 template.close();
             }
         };
@@ -80,7 +84,7 @@ public class InventoryUpdaterTest extends BaseJpaTest {
     }
 
     private InventoryUpdater createInventoryUpdater() {
-        return new PesimisticInventoryUpdater(template.getEntityManager());
+        return new OptimisticInventoryUpdater(template.getEntityManager());
     }
 
     private Long txAmounts() {

@@ -19,8 +19,8 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithIdentity);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithIdentity.getId())???
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+            assertThat(auctionWithIdentity.getId()).isNotNull();
         });
     }
 
@@ -45,9 +45,23 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithSequence);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithSequence.getId())??
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+            assertThat(auctionWithSequence.getId()).isNotNull();
         });
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
+    }
+
+    @Test
+    public void insertsManyEntitiesWithSequenceGenerator() {
+        template.getStatistics().clear();
+        int n = 200;
+        for(int i = 0; i<n; i++) {
+            AuctionWithSequence auctionWithSequence = new AuctionWithSequence();
+            template.executeInTx((em) -> {
+                em.persist(auctionWithSequence);
+            });
+        }
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(n + n/100 + 1);
     }
 
     @Test

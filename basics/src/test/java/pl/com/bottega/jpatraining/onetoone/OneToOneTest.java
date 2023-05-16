@@ -83,6 +83,32 @@ public class OneToOneTest extends BaseJpaTest {
     }
 
     @Test
+    public void deletesOrphanedAddress() {
+        // given
+        Customer customer = new Customer();
+        Address address = new Address();
+        customer.setAddress(address);
+        address.setCustomer(customer);
+        template.executeInTx((em) -> {
+            em.persist(customer);
+        });
+        template.close();
+
+        // when
+        template.executeInTx((em) -> {
+            var customerFetched = em.find(Customer.class, customer.getId());
+            customerFetched.setAddress(null);
+        });
+        template.close();
+
+        // then
+        template.executeInTx((em) -> {
+            assertThat(em.find(Address.class, address.getId())).isNull();
+            assertThat(em.find(Customer.class, customer.getId()).getAddress()).isNull();
+        });
+    }
+
+    @Test
     public void lazyLoadsAddress() {
         // given
         Customer customer = new Customer();
@@ -108,6 +134,38 @@ public class OneToOneTest extends BaseJpaTest {
     }
 
     @Test
+    public void np1Select() {
+        // given
+        int n = 100;
+        for(int i = 0; i<n; i++) {
+            Customer customer = new Customer();
+            Address address = new Address();
+            customer.setAddress(address);
+            address.setCustomer(customer);
+            // when
+            template.executeInTx((em) -> {
+                em.persist(customer);
+            });
+        }
+        template.close();
+        template.getStatistics().clear();
+
+        // when
+        var customers = template.getEntityManager().createQuery("SELECT c FROM Customer c JOIN FETCH c.address", Customer.class).getResultList();
+
+        // then
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+
+        // when
+        for(var c : customers) {
+            System.out.println(c.getAddress().getStreet());
+        }
+
+        // then
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+    }
+
+    @Test
     public void lazyLoadingOneToOneFromSlaveSide() {
         // given
         Customer customer = new Customer();
@@ -124,6 +182,7 @@ public class OneToOneTest extends BaseJpaTest {
         template.executeInTx((em) -> {
             template.getStatistics().clear();
             Address addressFetched = em.find(Address.class, address.getId());
+            assertThat(addressFetched.getCustomer()).isInstanceOf(Customer.class).isNotExactlyInstanceOf(Customer.class);
         });
         //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
     }

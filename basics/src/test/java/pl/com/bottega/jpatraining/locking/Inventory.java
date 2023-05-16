@@ -3,6 +3,7 @@ package pl.com.bottega.jpatraining.locking;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Version;
 
 @Entity
 public class Inventory {
@@ -12,6 +13,9 @@ public class Inventory {
 
     @Column(name = "inventory_count")
     private Integer count;
+
+    @Version
+    private Long version;
 
     private Inventory() {
     }
