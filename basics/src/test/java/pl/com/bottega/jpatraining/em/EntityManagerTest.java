@@ -1,6 +1,7 @@
 package pl.com.bottega.jpatraining.em;
 
 import org.h2.jdbc.JdbcSQLException;
+import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
@@ -81,7 +82,7 @@ public class EntityManagerTest extends BaseJpaTest {
             template.executeInTx(em -> {
                 em.persist(sameAuction);
             });
-        }).hasRootCauseInstanceOf(JdbcSQLException.class);
+        }).hasRootCauseInstanceOf(JdbcSQLIntegrityConstraintViolationException.class);
         //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
     }
 
