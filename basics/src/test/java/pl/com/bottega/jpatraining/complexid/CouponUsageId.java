@@ -13,7 +13,7 @@ public class CouponUsageId implements Serializable {
         this.couponId = couponId;
     }
 
-    CouponUsageId() {
+    private CouponUsageId() {
     }
 
     @Override

@@ -2,6 +2,8 @@ package pl.com.bottega.jpatraining.associations;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
+import jakarta.persistence.MapsId;
+
 import java.io.Serializable;
 import java.util.Objects;
 

@@ -83,6 +83,31 @@ public class OneToOneTest extends BaseJpaTest {
     }
 
     @Test
+    public void removesCustomerAddressAutomatically() {
+        // given
+        Customer customer = new Customer();
+        Address address = new Address();
+        customer.setAddress(address);
+        address.setCustomer(customer);
+        template.executeInTx((em) -> {
+            em.persist(customer);
+        });
+        template.close();
+
+        // when
+        template.executeInTx((em) -> {
+            var customerFetched = em.find(Customer.class, customer.getId());
+            customerFetched.setAddress(null);
+        });
+        template.close();
+
+        // then
+        template.executeInTx((em) -> {
+            assertThat(em.find(Address.class, address.getId())).isNull();
+        });
+    }
+
+    @Test
     public void lazyLoadsAddress() {
         // given
         Customer customer = new Customer();
@@ -108,6 +133,32 @@ public class OneToOneTest extends BaseJpaTest {
     }
 
     @Test
+    public void np1SelectProblem() {
+        // given
+        int n = 100;
+        for(int i = 0; i<n; i++) {
+            Customer customer = new Customer();
+            Address address = new Address();
+            customer.setAddress(address);
+            address.setCustomer(customer);
+            template.executeInTx((em) -> {
+                em.persist(customer);
+            });
+        }
+        template.close();
+        template.getStatistics().clear();
+
+        // when
+        var customers = template.getEntityManager().createQuery("SELECT c FROM Customer c "/*JOIN FETCH c.address*/, Customer.class).getResultList(); // 1
+        for(Customer customer : customers) {
+            System.out.println(customer.getAddress().getStreet()); // 1
+        } // x n
+
+        // then
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(n + 1);
+    }
+
+    @Test
     public void lazyLoadingOneToOneFromSlaveSide() {
         // given
         Customer customer = new Customer();
@@ -124,6 +175,7 @@ public class OneToOneTest extends BaseJpaTest {
         template.executeInTx((em) -> {
             template.getStatistics().clear();
             Address addressFetched = em.find(Address.class, address.getId());
+            assertThat(addressFetched.getCustomer()).isInstanceOf(Customer.class).isNotExactlyInstanceOf(Customer.class);
         });
         //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
     }

@@ -4,11 +4,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-public class Like {
+class Share {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -16,10 +16,10 @@ public class Like {
     @ManyToOne
     Post post;
 
-    Like() {
+    Share() {
     }
 
-    Like(Post post) {
+    Share(Post post) {
         this.post = post;
     }
 }
