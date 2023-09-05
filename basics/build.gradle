@@ -9,7 +9,7 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = 11
+sourceCompatibility = 17
 
 dependencies {
     implementation group: 'org.hibernate', name: 'hibernate-core', version: '6.2.2.Final'
