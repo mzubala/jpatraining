@@ -83,6 +83,30 @@ public class OneToOneTest extends BaseJpaTest {
     }
 
     @Test
+    public void deletesOrphanedAddress() {
+        // given
+        Customer customer = new Customer();
+        Address address = new Address();
+        customer.setAddress(address);
+        address.setCustomer(customer);
+        template.executeInTx((em) -> {
+            em.persist(customer);
+        });
+        template.close();
+
+        // when
+        template.executeInTx((em) -> {
+            em.find(Customer.class, customer.getId()).setAddress(null);
+        });
+        template.close();
+
+        // then
+        template.executeInTx((em) -> {
+            assertThat(em.find(Address.class, address.getId())).isNull();
+        });
+    }
+
+    @Test
     public void lazyLoadsAddress() {
         // given
         Customer customer = new Customer();

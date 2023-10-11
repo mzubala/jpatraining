@@ -19,8 +19,8 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithIdentity);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithIdentity.getId())???
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+            assertThat(auctionWithIdentity.getId()).isNotNull();
         });
     }
 
@@ -45,9 +45,28 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithSequence);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithSequence.getId())??
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+            assertThat(auctionWithSequence.getId()).isNotNull();
         });
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
+    }
+
+    @Test
+    public void generatesIdWithSequenceGeneratorInBatches() {
+        // given
+        template.getStatistics().clear();
+        int n = 1000;
+
+        // when
+        for (int i = 0; i < n; i++) {
+            template.executeInTx((em) -> {
+                AuctionWithSequence auctionWithSequence = new AuctionWithSequence();
+                em.persist(auctionWithSequence);
+            });
+        }
+
+        // then
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(n + n / 50 + 1);
     }
 
     @Test
@@ -117,7 +136,35 @@ public class IdGenTest extends BaseJpaTest {
             em.persist(auction);
         });
 
-        //assertThat(auction.getId()).isEqualTo(??);
+        assertThat(auction.getId()).isEqualTo(4L);
+    }
+
+    @Test
+    public void orderInCaseOfTransactionRollbackWithSequence() {
+        // given
+        template.executeInTx((em) -> {
+            em.persist(new AuctionWithSequence());
+        });
+        template.executeInTx((em) -> {
+            em.persist(new AuctionWithSequence());
+        });
+        try {
+            template.executeInTx((Consumer<EntityManager>) em -> {
+                em.persist(new AuctionWithSequence());
+                throw new RuntimeException();
+            });
+        } catch (RuntimeException ex) {
+
+        }
+        template.close();
+
+        // when
+        AuctionWithSequence auction = new AuctionWithSequence();
+        template.executeInTx(em -> {
+            em.persist(auction);
+        });
+
+        assertThat(auction.getId()).isEqualTo(4L);
     }
 
     private AuctionWithIdentity newAuction() {

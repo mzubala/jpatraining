@@ -1,13 +1,23 @@
 package pl.com.bottega.jpatraining.associations2;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import java.time.Instant;
 
+@Entity
 public class Show {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
     private Cinema cinema;
 
+    @ManyToOne
     private Movie movie;
 
     private Instant when;

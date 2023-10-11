@@ -1,17 +1,23 @@
 package pl.com.bottega.jpatraining.associations2;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import java.util.HashSet;
 import java.util.Set;
 
+@Entity
 public class Actor {
 
+    @Id
     private Long id;
     private String firstName;
     private String lastName;
 
+    @ManyToMany(mappedBy = "actors")
     private Set<Movie> stagedIn = new HashSet<>();
 
-    private Actor() {
+    Actor() {
     }
 
     public Actor(Long id, String firstName, String lastName) {

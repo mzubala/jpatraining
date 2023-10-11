@@ -6,6 +6,7 @@ import org.hibernate.collection.spi.PersistentSet;
 import org.junit.jupiter.api.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OneToManyTest extends BaseJpaTest {
@@ -33,11 +34,11 @@ public class OneToManyTest extends BaseJpaTest {
         // when
         template.executeInTx((em) -> {
             Post fetchedPost = em.find(Post.class, post.id);
-            fetchedPost.likes.add(new Like());
+            fetchedPost.likes.add(new Like(fetchedPost));
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
     }
 
     @Test
@@ -48,11 +49,11 @@ public class OneToManyTest extends BaseJpaTest {
         // when
         template.executeInTx((em) -> {
             Post fetchedPost = em.find(Post.class, post.id);
-            fetchedPost.comments.add(0, new Comment());
+            fetchedPost.comments.add(1, new Comment(post));
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(6L);
     }
 
     @Test
@@ -67,7 +68,37 @@ public class OneToManyTest extends BaseJpaTest {
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(3L);
+    }
+
+    @Test
+    public void np1Select() {
+        // given
+        int n = 100;
+        for(int i = 0; i<n; i++) {
+            savedPost();
+        }
+
+        // when
+        /*template.getEntityManager().createQuery("""
+                SELECT p FROM Post p
+                LEFT JOIN FETCH p.likes
+                """, Post.class).getResultList(); // 1
+        template.getEntityManager().createQuery("""
+                SELECT p FROM Post p
+                LEFT JOIN FETCH p.comments
+                """, Post.class).getResultList(); // 1*/
+        var posts = template.getEntityManager().createQuery("""
+                SELECT p FROM Post p 
+                """, Post.class).getResultList(); // 1
+        posts.forEach((p) -> {
+            System.out.println("Likes = " + p.likes.size()); // 1
+            System.out.println("Tags = " + p.tags.size());
+            System.out.println("Comment = " + p.comments.size());
+        }); // x n
+
+        // then
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(3);
     }
 
     @Test
@@ -99,10 +130,10 @@ public class OneToManyTest extends BaseJpaTest {
 
     private Post newPost() {
         Post post = new Post();
-        post.comments.add(new Comment());
-        post.comments.add(new Comment());
-        post.likes.add(new Like());
-        post.likes.add(new Like());
+        post.comments.add(new Comment(post));
+        post.comments.add(new Comment(post));
+        post.likes.add(new Like(post));
+        post.likes.add(new Like(post));
         post.tags.add(new Tag());
         post.tags.add(new Tag());
         return post;
