@@ -1,9 +1,16 @@
 package pl.com.bottega.jpatraining.onetoone;
 
+import jakarta.persistence.*;
+
+@Entity
 public class Address {
 
+    @Id
     private Long id;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "id")
     private Customer customer;
 
     public String getStreet() {
