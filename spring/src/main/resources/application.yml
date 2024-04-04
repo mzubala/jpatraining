@@ -6,3 +6,8 @@ spring:
     password: password
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      show_sql: true
+      format_sql: true
+    show-sql: true
+    open-in-view: false
