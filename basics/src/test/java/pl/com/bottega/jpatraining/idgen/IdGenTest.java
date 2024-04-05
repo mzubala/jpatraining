@@ -19,9 +19,26 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithIdentity);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithIdentity.getId())???
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+            assertThat(auctionWithIdentity.getId()).isNotNull();
         });
+
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+    }
+
+    @Test
+    public void generatesIdWithUUIDGenerator() {
+        AuctionWithUUID auctionWithUUID = new AuctionWithUUID();
+        assertThat(auctionWithUUID.getId()).isNull();
+        template.getStatistics().clear();
+
+        template.executeInTx((em) -> {
+            em.persist(auctionWithUUID);
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(0L);
+            assertThat(auctionWithUUID.getId()).isNotNull();
+        });
+
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
     }
 
     @Test
@@ -45,9 +62,28 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithSequence);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithSequence.getId())??
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1L);
+            assertThat(auctionWithSequence.getId()).isNotNull();
         });
+
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2L);
+    }
+
+    @Test
+    public void generatesManyIdsWithSequenceGenerator() {
+        // given
+        int n = 150;
+        template.getStatistics().clear();
+
+        // when
+        for(var i = 0; i<n; i++) {
+            AuctionWithSequence auctionWithSequence = new AuctionWithSequence();
+            template.executeInTx((em) -> {
+                em.persist(auctionWithSequence);
+            });
+        }
+
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(n + 7);
     }
 
     @Test
@@ -117,7 +153,7 @@ public class IdGenTest extends BaseJpaTest {
             em.persist(auction);
         });
 
-        //assertThat(auction.getId()).isEqualTo(??);
+        assertThat(auction.getId()).isEqualTo(4L);
     }
 
     private AuctionWithIdentity newAuction() {

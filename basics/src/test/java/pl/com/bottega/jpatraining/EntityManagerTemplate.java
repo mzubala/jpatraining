@@ -24,8 +24,8 @@ public class EntityManagerTemplate {
     public EntityManager createEntityManager() {
         if (emf == null) {
             emf = Persistence.createEntityManagerFactory(unitName);
+            getStatistics().setStatisticsEnabled(true);
         }
-        getStatistics().setStatisticsEnabled(true);
         return emf.createEntityManager();
     }
 

@@ -2,13 +2,17 @@ package pl.com.bottega.jpatraining.associations;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
+import jakarta.persistence.MapsId;
+
 import java.io.Serializable;
 import java.util.Objects;
 
 public class LineItem {
 
     private LineItemPK lineItemPK = new LineItemPK();
+    @MapsId("productId")
     private Product product;
+    @MapsId("orderId")
     private Order order;
     private Integer count;
 

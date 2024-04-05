@@ -3,18 +3,14 @@ package pl.com.bottega.jpatraining.onetomany;
 import jakarta.persistence.*;
 
 @Entity
-public class Tag {
+class Share {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @ManyToOne
     Post post;
 
-    public Tag(Post post) {
-        this.post = post;
-    }
 
-    public Tag() {
-    }
 }
