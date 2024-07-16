@@ -1,8 +1,11 @@
 package pl.com.bottega.jpatraining.embedded;
 
+import jakarta.persistence.Embeddable;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
+@Embeddable
 public class Money {
 
     private final Integer cents;
@@ -11,6 +14,11 @@ public class Money {
     private Money(Integer cents, String currency) {
         this.cents = cents;
         this.currency = currency;
+    }
+
+    private Money() {
+        this.cents = null;
+        this.currency = null;
     }
 
     public static Money of(Integer val, String currency) {

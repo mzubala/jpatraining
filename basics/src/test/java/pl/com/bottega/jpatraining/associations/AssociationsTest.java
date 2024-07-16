@@ -26,7 +26,6 @@ public class AssociationsTest extends BaseJpaTest {
         template.close();
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(3);
         template.executeInTx((em) -> {
             Order fetched = em.find(Order.class, order.getId());
             assertThat(fetched).isNotNull();

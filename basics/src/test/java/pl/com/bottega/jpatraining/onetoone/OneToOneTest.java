@@ -124,6 +124,7 @@ public class OneToOneTest extends BaseJpaTest {
         template.executeInTx((em) -> {
             template.getStatistics().clear();
             Address addressFetched = em.find(Address.class, address.getId());
+            assertThat(addressFetched.getCustomer()).isNotExactlyInstanceOf(Customer.class);
         });
         //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
     }

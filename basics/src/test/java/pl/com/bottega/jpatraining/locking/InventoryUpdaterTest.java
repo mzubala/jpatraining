@@ -1,5 +1,6 @@
 package pl.com.bottega.jpatraining.locking;
 
+import jakarta.persistence.RollbackException;
 import org.junit.jupiter.api.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,11 +50,18 @@ public class InventoryUpdaterTest extends BaseJpaTest {
     public void buysInventoryInConcurrentEnvironment() throws InterruptedException {
         // given
         initialInventory();
+        var errorCounter = new AtomicInteger();
         Runnable buyer = () -> {
             while (template.getEntityManager().find(Inventory.class, skuCode).getCount() > 0) {
-                template.executeInTx((em) -> {
-                    createInventoryUpdater().buy(skuCode, 4);
-                });
+                System.out.println(Thread.currentThread().getName());
+                try {
+                    template.executeInTx((em) -> {
+                        createInventoryUpdater().buy(skuCode, 4);
+                    });
+                } catch (RollbackException e) {
+                    errorCounter.incrementAndGet();
+                    System.out.println("Optimistic lock failure");
+                }
                 template.close();
             }
         };
@@ -67,6 +76,7 @@ public class InventoryUpdaterTest extends BaseJpaTest {
 
         // then
         assertThat(txAmounts()).isEqualTo(-1000);
+        System.out.println("Errors count = " + errorCounter.get());
     }
 
     private final String skuCode = "test";
@@ -80,7 +90,7 @@ public class InventoryUpdaterTest extends BaseJpaTest {
     }
 
     private InventoryUpdater createInventoryUpdater() {
-        return new PesimisticInventoryUpdater(template.getEntityManager());
+        return new OptimisticInventoryUpdater(template.getEntityManager());
     }
 
     private Long txAmounts() {

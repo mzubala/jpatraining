@@ -19,9 +19,23 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithIdentity);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithIdentity.getId())???
+            assertThat(auctionWithIdentity.getId()).isNotNull();
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
         });
+    }
+
+    @Test
+    public void generatesIdWithUUIDGenerator() {
+        AuctionWithUUID auctionWithUUID = new AuctionWithUUID();
+        assertThat(auctionWithUUID.getId()).isNull();
+        template.getStatistics().clear();
+
+        template.executeInTx((em) -> {
+            em.persist(auctionWithUUID);
+            assertThat(auctionWithUUID.getId()).isNotNull();
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(0);
+        });
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
     }
 
     @Test
@@ -45,9 +59,28 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithSequence);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithSequence.getId())??
+            assertThat(auctionWithSequence.getId()).isNotNull();
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
         });
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2);
+    }
+
+    @Test
+    public void generatesManyIdsWithSequenceGenerator() {
+        // given
+        template.getStatistics().clear();
+        int n = 200;
+
+        // when
+        for (int i = 0; i < n; i++) {
+            AuctionWithSequence auctionWithSequence = new AuctionWithSequence();
+            template.executeInTx((em) -> {
+                em.persist(auctionWithSequence);
+            });
+        }
+
+        // then
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(n + n/50 + 1);
     }
 
     @Test
@@ -117,7 +150,7 @@ public class IdGenTest extends BaseJpaTest {
             em.persist(auction);
         });
 
-        //assertThat(auction.getId()).isEqualTo(??);
+        assertThat(auction.getId()).isEqualTo(4);
     }
 
     private AuctionWithIdentity newAuction() {
