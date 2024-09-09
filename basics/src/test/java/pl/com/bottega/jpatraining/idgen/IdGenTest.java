@@ -25,6 +25,20 @@ public class IdGenTest extends BaseJpaTest {
     }
 
     @Test
+    public void generatesIdWithUUIDGenerator() {
+        AuctionWithUUID auctionWithUUID = new AuctionWithUUID();
+        assertThat(auctionWithUUID.getId()).isNull();
+        template.getStatistics().clear();
+
+        template.executeInTx((em) -> {
+            em.persist(auctionWithUUID);
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(0);
+            assertThat(auctionWithUUID.getId()).isNotNull();
+        });
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
+    }
+
+    @Test
     public void generatesIdWithTableGenerator() {
         AuctionWithTable auctionWithTable = new AuctionWithTable();
         assertThat(auctionWithTable.getId()).isNull();

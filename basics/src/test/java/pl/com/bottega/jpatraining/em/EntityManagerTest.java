@@ -121,8 +121,8 @@ public class EntityManagerTest extends BaseJpaTest {
         template.close();
 
         //then
-        //assertThat(template.getEntityManager().find(Auction.class, 1L).getName()).isEqualTo(???)
         //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
+        //assertThat(template.getEntityManager().find(Auction.class, 1L).getName()).isEqualTo(???)
         //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
     }
 
@@ -144,8 +144,8 @@ public class EntityManagerTest extends BaseJpaTest {
         });
         template.close();
 
-        //assertThat(template.getEntityManager().find(Auction.class, 1L).getName()).isEqualTo(???)
         //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
+        //assertThat(template.getEntityManager().find(Auction.class, 1L).getName()).isEqualTo(???)
         //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
     }
 
@@ -169,8 +169,8 @@ public class EntityManagerTest extends BaseJpaTest {
         });
 
         // then
-        //assertThat(template.getEntityManager().find(Auction.class, 1L).getName()).isEqualTo(???)
         //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
+        //assertThat(template.getEntityManager().find(Auction.class, 1L).getName()).isEqualTo(???)
         //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
     }
 
