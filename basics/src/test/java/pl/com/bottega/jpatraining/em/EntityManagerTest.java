@@ -1,7 +1,10 @@
 package pl.com.bottega.jpatraining.em;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.FlushModeType;
 import org.h2.jdbc.JdbcSQLException;
 import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
+import org.hibernate.LazyInitializationException;
 import org.junit.jupiter.api.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
@@ -172,6 +175,74 @@ public class EntityManagerTest extends BaseJpaTest {
         //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
         //assertThat(template.getEntityManager().find(Auction.class, 1L).getName()).isEqualTo(???)
         //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
+    }
+
+    @Test
+    public void getsReferenceToEntity() {
+        //given
+        template.executeInTx(em -> {
+            Auction auction = newAuction();
+            em.persist(auction);
+        });
+        template.close();
+        template.getStatistics().clear();
+
+        // when
+        Auction referencedAuction = template.getEntityManager().getReference(Auction.class, 1L);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(0);
+        assertThat(referencedAuction.getId()).isEqualTo(1L);
+        assertThat(referencedAuction).isInstanceOf(Auction.class).isNotExactlyInstanceOf(Auction.class);
+        var name = referencedAuction.getName();
+        assertThat(name).isEqualTo("Test");
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void getsInvalidReference() {
+        //given
+        template.getStatistics().clear();
+
+        // when
+        Auction referencedAuction = template.getEntityManager().getReference(Auction.class, 1L);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(0);
+        assertThat(referencedAuction.getId()).isEqualTo(1L);
+        assertThat(referencedAuction).isInstanceOf(Auction.class).isNotExactlyInstanceOf(Auction.class);
+        assertThatThrownBy(referencedAuction::getName).isInstanceOf(EntityNotFoundException.class);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void cannotLoadProxyAfterClosingEntityManager() {
+        //given
+        template.executeInTx(em -> {
+            Auction auction = newAuction();
+            em.persist(auction);
+        });
+        template.close();
+        template.getStatistics().clear();
+
+        // when
+        Auction referencedAuction = template.getEntityManager().getReference(Auction.class, 1L);
+        template.close();
+        assertThatThrownBy(referencedAuction::getName).isInstanceOf(LazyInitializationException.class);
+    }
+
+    @Test
+    public void flushesContextOnQuery() {
+        // given
+        template.getStatistics().clear();
+
+        // expect
+        template.executeInTx(em -> {
+            Auction auction = newAuction();
+            em.persist(auction);
+            em.createQuery("SELECT ad FROM CarAd ad").getResultList();
+            assertThat(template.getStatistics().getFlushCount()).isEqualTo(0);
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
+            em.createQuery("SELECT a FROM Auction a").getResultList();
+            assertThat(template.getStatistics().getFlushCount()).isEqualTo(1);
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(3);
+        });
     }
 
     private Auction newAuction() {
