@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,12 +50,19 @@ public class InventoryUpdaterTest extends BaseJpaTest {
         // given
         initialInventory();
         Runnable buyer = () -> {
+            AtomicInteger atomicInteger = new AtomicInteger();
             while (template.getEntityManager().find(Inventory.class, skuCode).getCount() > 0) {
-                template.executeInTx((em) -> {
-                    createInventoryUpdater().buy(skuCode, 4);
-                });
+                try {
+                    template.executeInTx((em) -> {
+                        createInventoryUpdater().buy(skuCode, 4);
+                    });
+                } catch (Exception ex) {
+                    atomicInteger.incrementAndGet();
+                    //ex.printStackTrace();
+                }
                 template.close();
             }
+            System.out.println("Errors count " + atomicInteger.get());
         };
 
         // when
@@ -80,7 +88,7 @@ public class InventoryUpdaterTest extends BaseJpaTest {
     }
 
     private InventoryUpdater createInventoryUpdater() {
-        return new PesimisticInventoryUpdater(template.getEntityManager());
+        return new OptimisticInventoryUpdater(template.getEntityManager());
     }
 
     private Long txAmounts() {
