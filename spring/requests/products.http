@@ -1,1 +1,33 @@
 GET http://localhost:8080/products
+
+###
+
+POST http://localhost:8080/attributes
+Content-Type: application/json
+
+{
+  "name": "Test 4"
+}
+
+###
+
+GET http://localhost:8080/attributes
+
+###
+
+PUT http://localhost:8080/attributes/01e86ef9-0387-41bd-9403-f9159b5effa0
+Content-Type: application/json
+
+{
+  "name": "Test 90000"
+}
+
+###
+
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "Test 100",
+  "attributeIds": []
+}

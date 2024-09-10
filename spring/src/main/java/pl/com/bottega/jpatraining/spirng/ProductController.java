@@ -2,11 +2,11 @@ package pl.com.bottega.jpatraining.spirng;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.persistence.EntityManager;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/products")
@@ -14,10 +14,15 @@ import jakarta.persistence.EntityManager;
 @Log
 public class ProductController {
 
-    private final EntityManager entityManager;
+    private final ProductService productService;
 
     @GetMapping
-    public void getProduct() {
-        log.info(entityManager.getClass().toString());
+    public List<Product> getProduct() {
+        return productService.getProducts();
+    }
+
+    @PostMapping
+    public void createProduct(@RequestBody ProductDataRequest product) {
+        productService.create(product);
     }
 }
