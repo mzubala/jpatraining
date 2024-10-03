@@ -30,7 +30,7 @@
 
             <property name="hibernate.hbm2ddl.auto"
                       value="create"/>
-            
+
             <property name="hibernate.globally_quoted_identifiers" value="true"/>
         </properties>
 
@@ -42,7 +42,6 @@
         </description>
 
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-        <jar-file>file:./out/test/classes</jar-file>
         <jar-file>file:./build/classes/java/test</jar-file>
         <exclude-unlisted-classes>false</exclude-unlisted-classes>
         <properties>
@@ -67,7 +66,14 @@
 
             <property name="hibernate.cache.use_second_level_cache" value="true"/>
             <property name="hibernate.cache.region.factory_class"
-                      value="org.hibernate.cache.ehcache.EhCacheRegionFactory"/>
+                      value="jcache"/>
+            <property
+                    name="hibernate.javax.cache.provider"
+                    value="org.ehcache.jsr107.EhcacheCachingProvider"/>
+            <property
+                    name="hibernate.javax.cache.uri"
+                    value="ehcache.xml"/>
+
             <property name="hibernate.cache.use_query_cache"
                       value="true"/>
         </properties>
