@@ -24,11 +24,11 @@ public class EntityManagerTest extends BaseJpaTest {
         //when
         template.executeInTx((em) -> {
             em.persist(auction);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(0);
         });
 
         //then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
         assertThat(template.createEntityManager().find(Auction.class, 1L)).isNotNull();
     }
 
@@ -42,11 +42,11 @@ public class EntityManagerTest extends BaseJpaTest {
         //when
         template.executeInTx((em) -> {
             em.merge(auction);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
         });
 
         //then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2);
         assertThat(template.createEntityManager().find(Auction.class, 1L)).isNotNull();
     }
 
@@ -66,7 +66,8 @@ public class EntityManagerTest extends BaseJpaTest {
                 em.persist(sameAuction);
             });
         }).isInstanceOf(EntityExistsException.class);
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(0);
     }
 
     @Test
@@ -86,7 +87,7 @@ public class EntityManagerTest extends BaseJpaTest {
                 em.persist(sameAuction);
             });
         }).hasRootCauseInstanceOf(JdbcSQLIntegrityConstraintViolationException.class);
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
     }
 
     @Test
@@ -107,7 +108,7 @@ public class EntityManagerTest extends BaseJpaTest {
 
         //then
         assertThat(template.getEntityManager().find(Auction.class, 1L).getName()).isEqualTo("new name");
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
     }
 
     @Test
@@ -117,6 +118,7 @@ public class EntityManagerTest extends BaseJpaTest {
         template.executeInTx(em -> {
             Auction auction = newAuction();
             em.persist(auction);
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(0);
             auction.setName("new name");
             auction.setName("new name 2");
             auction.setName("new name 3");
@@ -124,9 +126,29 @@ public class EntityManagerTest extends BaseJpaTest {
         template.close();
 
         //then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
-        //assertThat(template.getEntityManager().find(Auction.class, 1L).getName()).isEqualTo(???)
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2);
+        assertThat(template.getEntityManager().find(Auction.class, 1L).getName()).isEqualTo("new name 3");
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(3);
+    }
+
+    @Test
+    public void tracksNewMergedEntities() {
+        //when
+        template.getStatistics().clear();
+        template.executeInTx(em -> {
+            Auction auction = newAuction();
+            auction = em.merge(auction);
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
+            auction.setName("new name");
+            auction.setName("new name 2");
+            auction.setName("new name 3");
+        });
+        template.close();
+
+        //then
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(3);
+        assertThat(template.getEntityManager().find(Auction.class, 1L).getName()).isEqualTo("new name 3");
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(4);
     }
 
     @Test
@@ -140,16 +162,16 @@ public class EntityManagerTest extends BaseJpaTest {
 
         //when
         template.executeInTx(em -> {
-            Auction auction = em.find(Auction.class, 1L);
+            Auction auction = em.find(Auction.class, 1L); // 0
             auction.setName("new name");
             auction.setName("new name 2");
             auction.setName("new name 3");
         });
         template.close();
 
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
-        //assertThat(template.getEntityManager().find(Auction.class, 1L).getName()).isEqualTo(???)
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
+        assertThat(template.getEntityManager().find(Auction.class, 1L).getName()).isEqualTo("new name 3");
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2);
     }
 
     @Test
@@ -167,14 +189,16 @@ public class EntityManagerTest extends BaseJpaTest {
             Auction auction = newAuction();
             auction.setName("new name");
             Auction mergedAuction = em.merge(auction);
+            assertThat(mergedAuction != auction).isTrue();
             auction.setName("new name 2");
             mergedAuction.setName("new name 42");
+            auction.setName("new name 43");
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
-        //assertThat(template.getEntityManager().find(Auction.class, 1L).getName()).isEqualTo(???)
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??)
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2);
+        assertThat(template.getEntityManager().find(Auction.class, 1L).getName()).isEqualTo("new name 42");
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2);
     }
 
     @Test
@@ -191,6 +215,7 @@ public class EntityManagerTest extends BaseJpaTest {
         Auction referencedAuction = template.getEntityManager().getReference(Auction.class, 1L);
         assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(0);
         assertThat(referencedAuction.getId()).isEqualTo(1L);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(0);
         assertThat(referencedAuction).isInstanceOf(Auction.class).isNotExactlyInstanceOf(Auction.class);
         var name = referencedAuction.getName();
         assertThat(name).isEqualTo("Test");

@@ -19,8 +19,9 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithIdentity);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithIdentity.getId())???
+            assertThat(template.getStatistics().getFlushCount()).isEqualTo(0);
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
+            assertThat(auctionWithIdentity.getId()).isNotNull();
         });
     }
 
@@ -59,17 +60,39 @@ public class IdGenTest extends BaseJpaTest {
 
         template.executeInTx((em) -> {
             em.persist(auctionWithSequence);
-            //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
-            //assertThat(auctionWithSequence.getId())??
+            assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(1);
+            assertThat(auctionWithSequence.getId()).isNotNull();
         });
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(2);
+    }
+
+    @Test
+    public void generatesMultipleIdsWithSequenceGenerator() {
+        template.getStatistics().clear();
+        int n = 1000;
+        for(int i = 0; i < n; i++) {
+            AuctionWithSequence auctionWithSequence = new AuctionWithSequence();
+            template.executeInTx((em) -> {
+                em.persist(auctionWithSequence);
+            });
+            template.close();
+        }
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(n + n / 100 + 1);
     }
 
     @Test
     public void mergesAuctionWithGeneratedId() {
+        // given
+        var id = template.executeInTx(em -> {
+            var a = new AuctionWithIdentity();
+            em.persist(a);
+            return a.getId();
+        });
+
         // when
         AuctionWithIdentity mergedAuction = template.executeInTx(em -> {
             AuctionWithIdentity auction = new AuctionWithIdentity();
-            auction.setId(40L);
+            auction.setId(id);
             return em.merge(auction);
         });
 
@@ -131,7 +154,7 @@ public class IdGenTest extends BaseJpaTest {
             em.persist(auction);
         });
 
-        //assertThat(auction.getId()).isEqualTo(??);
+        assertThat(auction.getId()).isEqualTo(4);
     }
 
     private AuctionWithIdentity newAuction() {

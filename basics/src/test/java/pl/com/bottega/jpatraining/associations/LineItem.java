@@ -1,16 +1,24 @@
 package pl.com.bottega.jpatraining.associations;
 
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
+
 import java.io.Serializable;
 import java.util.Objects;
 
+@Entity
 public class LineItem {
 
+    @EmbeddedId
     private LineItemPK lineItemPK = new LineItemPK();
+    @ManyToOne
+    @MapsId("productId")
     private Product product;
+    @ManyToOne
+    @MapsId("orderId")
     private Order order;
     private Integer count;
+
+    private LineItem() {}
 
     public LineItem(Order order, Product product, int count) {
         this.product = product;
