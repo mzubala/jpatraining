@@ -33,11 +33,13 @@ public class OneToManyTest extends BaseJpaTest {
         // when
         template.executeInTx((em) -> {
             Post fetchedPost = em.find(Post.class, post.id);
-            fetchedPost.likes.add(new Like());
+            var newLike = new Like();
+            fetchedPost.likes.add(newLike);
+            fetchedPost.likes.add(newLike);
         });
 
         // then
-        //assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(??);
+        assertThat(template.getStatistics().getPrepareStatementCount()).isEqualTo(7);
     }
 
     @Test
