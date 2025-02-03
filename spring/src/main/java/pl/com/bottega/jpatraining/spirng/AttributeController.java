@@ -16,6 +16,7 @@ import java.util.UUID;
 class AttributeController {
 
     private final AttributeRepository attributeRepository;
+    private final EntityManager entityManager;
 
     @PostMapping
     //@Transactional

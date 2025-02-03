@@ -16,7 +16,7 @@ GET http://localhost:8080/attributes
 
 ###
 
-PUT http://localhost:8080/attributes/a2f0ad13-5784-4b33-a5ff-62e3b108c81b
+PUT http://localhost:8080/attributes/1649fc56-0961-4564-835c-c88e8d83cc02
 Content-Type: application/json
 
 {
@@ -29,10 +29,10 @@ POST http://localhost:8080/products
 Content-Type: application/json
 
 {
-  "name": "Test 100",
-  "attributeIds": []
+  "name": "Test 666",
+  "attributeIds": ["1649fc56-0961-4564-835c-c88e8d83cc02"]
 }
 
 ###
 
-GET http://localhost:8080/products/06a5b215-c427-4cfa-8221-7a3738b4decc
+GET http://localhost:8080/products/d3eb41c9-af5a-4fa4-ab4a-e3c19e57a44a

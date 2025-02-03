@@ -1,5 +1,6 @@
 package pl.com.bottega.jpatraining.locking;
 
+import jakarta.persistence.RollbackException;
 import org.junit.jupiter.api.Test;
 import pl.com.bottega.jpatraining.BaseJpaTest;
 
@@ -50,9 +51,14 @@ public class InventoryUpdaterTest extends BaseJpaTest {
         initialInventory();
         Runnable buyer = () -> {
             while (template.getEntityManager().find(Inventory.class, skuCode).getCount() > 0) {
-                template.executeInTx((em) -> {
-                    createInventoryUpdater().buy(skuCode, 4);
-                });
+                try {
+                    template.executeInTx((em) -> {
+                        createInventoryUpdater().buy(skuCode, 4);
+                    });
+                } catch (RollbackException ex) {
+                    ex.printStackTrace();
+                }
+                System.out.println(Thread.currentThread().getName());
                 template.close();
             }
         };

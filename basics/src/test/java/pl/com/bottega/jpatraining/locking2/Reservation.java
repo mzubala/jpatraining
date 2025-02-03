@@ -25,6 +25,8 @@ import java.time.LocalDate;
         "WHERE r.room.id = :roomId AND ((:start <= r.fromInclusive AND :end > r.fromInclusive) " +
         "OR (:start >= r.fromInclusive AND :end <= r.untilExclusive) " +
         "OR (:start < r.untilExclusive AND :end >= r.untilExclusive))"
+    // ('2024-11-01' <= start AND '2024-11-10' > start) OR ('2024-11-01' >= start AND '2024-11-10' <= end_date)
+    // OR ('2024-11-01' < end_date AND '2024-11-10' >= end_date)
 )
 @NamedQuery(
     name = Reservation.IS_RESERVED_QUERY, // isReserved
