@@ -3,8 +3,10 @@ package pl.com.bottega.jpatraining.associations2;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
+@Entity
 public class Cinema {
 
+    @Id
     private Long id;
     private String name;
     private String city;
@@ -15,7 +17,7 @@ public class Cinema {
         this.name = name;
     }
 
-    private Cinema() {}
+    Cinema() {}
 
     public Long getId() {
         return id;

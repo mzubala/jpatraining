@@ -1,14 +1,15 @@
 package pl.com.bottega.jpatraining.read;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@NamedQuery(
+    name = "countBrands",
+    query = "SELECT COUNT(b) FROM Brand b"
+)
 public class Brand {
 
     @Id

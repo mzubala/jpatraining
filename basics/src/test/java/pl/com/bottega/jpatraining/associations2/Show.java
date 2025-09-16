@@ -1,13 +1,20 @@
 package pl.com.bottega.jpatraining.associations2;
 
+import jakarta.persistence.*;
+
 import java.time.Instant;
 
+@Entity
 public class Show {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
     private Cinema cinema;
 
+    @ManyToOne
     private Movie movie;
 
     private Instant when;
@@ -34,5 +41,17 @@ public class Show {
 
     public Instant getWhen() {
         return when;
+    }
+
+    public void setMovie(Movie movie) {
+        this.movie = movie;
+    }
+
+    public void setCinema(Cinema cinema) {
+        this.cinema = cinema;
+    }
+
+    public void setWhen(Instant when) {
+        this.when = when;
     }
 }

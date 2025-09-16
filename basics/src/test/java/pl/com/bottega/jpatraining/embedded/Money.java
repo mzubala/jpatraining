@@ -1,12 +1,19 @@
 package pl.com.bottega.jpatraining.embedded;
 
+import jakarta.persistence.Embeddable;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
+@Embeddable
 public class Money {
 
     private final Integer cents;
     private final String currency;
+
+    private Money() {
+        this(null, null);
+    }
 
     private Money(Integer cents, String currency) {
         this.cents = cents;
